@@ -28,4 +28,10 @@ class Employee extends Model
         'salary_type',
         'salary_amount',
     ];
+
+    public function attendanceRecords()
+    {
+        return $this->hasMany(AttendanceRecord::class);
+    }
+
 }

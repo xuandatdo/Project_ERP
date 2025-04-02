@@ -6,9 +6,10 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
   faChevronDown,
   faChevronRight,
+  faChevronLeft,
 } from "@fortawesome/free-solid-svg-icons";
 
-library.add(faChevronDown, faChevronRight);
+library.add(faChevronDown, faChevronRight, faChevronLeft);
 
 const app = createApp(App);
 app.use(router);
