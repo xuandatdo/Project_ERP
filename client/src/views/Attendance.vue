@@ -5,28 +5,16 @@
         <button @click="previousDay" class="btn btn-outline-secondary">
           <font-awesome-icon icon="chevron-left" />
         </button>
-        <input
-          type="date"
-          v-model="selectedDate"
-          @change="fetchAttendance"
-          class="form-control date-input"
-        />
+        <input type="date" v-model="selectedDate" @change="fetchAttendance" class="form-control date-input" />
         <button @click="nextDay" class="btn btn-outline-secondary">
           <font-awesome-icon icon="chevron-right" />
         </button>
-        <button
-          @click="setToday"
-          class="btn btn-outline-primary today-btn"
-        >
+        <button @click="setToday" class="btn btn-outline-primary today-btn">
           Today
         </button>
       </div>
-      <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Tìm kiếm nhân viên (mã hoặc tên)"
-          class="form-control search-input"
-      />
+      <input v-model="searchQuery" type="text" placeholder="Tìm kiếm nhân viên (mã hoặc tên)"
+        class="form-control search-input" />
     </div>
 
     <div v-if="loading" class="loading-spinner">
@@ -45,36 +33,28 @@
             </tr>
           </thead>
           <tbody>
-          <tr v-for="employee in filteredEmployees" :key="employee.id">
-            <td>{{ employee.id }}</td>
-            <td>{{ employee.name }}</td>
-            <td>
-           <span :class="statusClass(employee.status)">
-             {{ employee.status || 'Not marked' }}
-           </span>
-                </td>
-                <td>
-                  <select
-                      v-model="employee.status"
-                      @change="updateStatus(employee)"
-                      class="form-control status-select"
-                  >
-                    <option value="">Select Status</option>
-                    <option value="present">Present</option>
-                    <option value="absent">Absent</option>
-                  </select>
-                </td>
-              </tr>
+            <tr v-for="employee in filteredEmployees" :key="employee.id">
+              <td>{{ employee.id }}</td>
+              <td>{{ employee.name }}</td>
+              <td>
+                <span :class="statusClass(employee.status)">
+                  {{ employee.status || 'Not marked' }}
+                </span>
+              </td>
+              <td>
+                <select v-model="employee.status" @change="updateStatus(employee)" class="form-control status-select">
+                  <option value="">Select Status</option>
+                  <option value="present">Present</option>
+                  <option value="absent">Absent</option>
+                </select>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
 
       <div class="action-buttons">
-        <button
-          @click="saveAttendance"
-          class="btn btn-primary save-btn"
-          :disabled="saving"
-        >
+        <button @click="saveAttendance" class="btn btn-primary save-btn" :disabled="saving">
           <span v-if="saving">
             <i class="fas fa-spinner fa-spin"></i> Saving...
           </span>
@@ -108,8 +88,8 @@ export default {
       }
       const query = this.searchQuery.toLowerCase(); // Normalize search term
       return this.employees.filter(employee =>
-          employee.name.toLowerCase().includes(query) || // Match employee name
-          String(employee.id).includes(query)           // Match employee ID
+        employee.name.toLowerCase().includes(query) || // Match employee name
+        String(employee.id).includes(query)           // Match employee ID
       );
     }
   },
@@ -191,12 +171,13 @@ export default {
 /* General Container Styling */
 .attendance-container {
   max-width: 1200px;
-  margin: 0 auto;
+  /* margin: 0 auto; */
   padding: 20px;
   background-color: #f9f9f9;
   border: 1px solid #ddd;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin: 10px;
 }
 
 /* Header Styling */
@@ -244,7 +225,8 @@ export default {
   border-collapse: collapse;
 }
 
-.attendance-table th, .attendance-table td {
+.attendance-table th,
+.attendance-table td {
   text-align: left;
   padding: 12px;
   border-bottom: 1px solid #ddd;
@@ -282,7 +264,8 @@ span.status-not-marked {
 }
 
 /* Buttons */
-.button, .btn {
+.button,
+.btn {
   display: inline-block;
   padding: 8px 12px;
   font-size: 0.9rem;
@@ -352,5 +335,4 @@ span.status-not-marked {
   width: 100%;
   max-width: 400px;
 }
-
 </style>

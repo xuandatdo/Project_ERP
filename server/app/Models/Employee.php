@@ -13,8 +13,12 @@ class Employee extends Model
     protected $fillable = [
         'name',
         'email',
+        'birth_date',
+        'profile_image',
         'address',
         'phone',
+        'work_experience',
+        'education_level',
         'gender',
         'position',
         'department',
@@ -33,5 +37,4 @@ class Employee extends Model
     {
         return $this->hasMany(AttendanceRecord::class);
     }
-
 }

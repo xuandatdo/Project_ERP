@@ -3,9 +3,9 @@
     <!-- Sidebar -->
     <div class="sidebar">
       <div class="menu">
-        <!-- <div class="logo">
-          <img src="../client/src/assets/logo.jpg" alt="Logo" />
-        </div> -->
+        <div class="logo">
+          <img src="../src/assets/img-logo.png" alt="Logo" />
+        </div>
         <div class="menu-item" @click="toggleSubMenu">
           <span>Quản lý nhân sự</span>
           <i :class="subMenuOpen ? 'fas fa-chevron-down' : 'fas fa-chevron-right'"></i>
@@ -64,10 +64,28 @@ export default {
 };
 </script>
 
+<style>
+/* Reset CSS để loại bỏ margin và padding mặc định */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+</style>
+
 <style scoped>
 .dashboard {
   display: flex;
   height: 100vh;
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 .sidebar {
@@ -77,7 +95,10 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 20px 0;
+  padding: 0;
+  margin: 0;
+  position: relative;
+  left: 0;
 }
 
 .menu {
@@ -85,7 +106,7 @@ export default {
 }
 
 .menu-item {
-  padding: 15px 20px;
+  padding: 15px;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
@@ -102,7 +123,7 @@ export default {
 
 .sub-menu-item {
   display: block;
-  padding: 10px 40px;
+  padding: 10px 30px;
   color: white;
   text-decoration: none;
 }
@@ -113,7 +134,7 @@ export default {
 
 .logo {
   text-align: center;
-  padding: 20px;
+  padding: 20px 0;
 }
 
 .logo img {
@@ -122,7 +143,6 @@ export default {
 
 .main-content {
   flex-grow: 1;
-  background-color: #f4f6f9;
   display: flex;
   flex-direction: column;
 }

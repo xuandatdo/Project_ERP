@@ -5,5 +5,6 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AttendanceController;
 
 Route::resource('employees', EmployeeController::class)->except(['create', 'edit']);
+// Route::post('/employees', [EmployeeController::class, 'store']);
 Route::get('/attendance', [AttendanceController::class, 'index']);
 Route::post('/attendance', [AttendanceController::class, 'store']);

@@ -1,11 +1,11 @@
 <template>
     <div class="container">
-        <form @submit.prevent="updateEmployee" class="employee-form">
+        <form @submit.prevent="updateEmployee" class="employee-form" enctype="multipart/form-data">
             <div class="form-grid">
                 <!-- Tên -->
                 <div class="form-group">
-                    <label for="name">Tên <span class="required">*</span></label>
-                    <input v-model="form.name" id="name" type="text" placeholder="Nhập tên" required />
+                    <label for="name">Họ và tên <span class="required">*</span></label>
+                    <input v-model="form.name" id="name" type="text" placeholder="Nhập họ và tên" required />
                     <span v-if="errors.name" class="error">{{ errors.name }}</span>
                 </div>
 
@@ -14,6 +14,24 @@
                     <label for="email">Email <span class="required">*</span></label>
                     <input v-model="form.email" id="email" type="email" placeholder="Nhập email" required />
                     <span v-if="errors.email" class="error">{{ errors.email }}</span>
+                </div>
+
+                <!-- Ngày sinh -->
+                <div class="form-group">
+                    <label for="birth_date">Ngày sinh <span class="required">*</span></label>
+                    <input v-model="form.birth_date" id="birth_date" type="date" required />
+                    <span v-if="errors.birth_date" class="error">{{ errors.birth_date }}</span>
+                </div>
+
+                <!-- Ảnh nhân sự -->
+                <div class="form-group">
+                    <label for="profile_image">Ảnh nhân sự</label>
+                    <input @change="handleImageUpload" id="profile_image" type="file" accept="image/*" />
+                    <span class="note">Dung lượng tối đa: 2MB, Kích thước tối đa: 1024x1024px</span>
+                    <span v-if="form.profile_image && !newImage" class="current-image">
+                        Hiện tại: {{ form.profile_image.split('/').pop() }}
+                    </span>
+                    <span v-if="errors.profile_image" class="error">{{ errors.profile_image }}</span>
                 </div>
 
                 <!-- Địa chỉ -->
@@ -31,6 +49,28 @@
                     <span v-if="errors.phone" class="error">{{ errors.phone }}</span>
                 </div>
 
+                <!-- Kinh nghiệm làm việc -->
+                <div class="form-group">
+                    <label for="work_experience">Kinh nghiệm làm việc <span class="required">*</span></label>
+                    <input v-model="form.work_experience" id="work_experience" type="text" placeholder="Ví dụ: 2 năm"
+                        required />
+                    <span v-if="errors.work_experience" class="error">{{ errors.work_experience }}</span>
+                </div>
+
+                <!-- Trình độ -->
+                <div class="form-group">
+                    <label for="education_level">Trình độ <span class="required">*</span></label>
+                    <select v-model="form.education_level" id="education_level" required>
+                        <option value="" disabled>Chọn trình độ</option>
+                        <option value="THPT">THPT</option>
+                        <option value="Cao đẳng">Cao đẳng</option>
+                        <option value="Đại học">Đại học</option>
+                        <option value="Thạc sĩ">Thạc sĩ</option>
+                        <option value="Tiến sĩ">Tiến sĩ</option>
+                    </select>
+                    <span v-if="errors.education_level" class="error">{{ errors.education_level }}</span>
+                </div>
+
                 <!-- Giới tính -->
                 <div class="form-group">
                     <label for="gender">Giới tính <span class="required">*</span></label>
@@ -38,7 +78,6 @@
                         <option value="" disabled>Chọn giới tính</option>
                         <option value="Nam">Nam</option>
                         <option value="Nữ">Nữ</option>
-                        <!-- <option value="Khác">Khác</option> -->
                     </select>
                     <span v-if="errors.gender" class="error">{{ errors.gender }}</span>
                 </div>
@@ -72,13 +111,13 @@
                     <span v-if="errors.start_date" class="error">{{ errors.start_date }}</span>
                 </div>
 
-                <!-- Ngày kết thúc (không bắt buộc) -->
+                <!-- Ngày kết thúc -->
                 <div class="form-group">
                     <label for="end_date">Ngày kết thúc</label>
                     <input v-model="form.end_date" id="end_date" type="date" />
                 </div>
 
-                <!-- Kết thúc thử việc (không bắt buộc) -->
+                <!-- Kết thúc thử việc -->
                 <div class="form-group">
                     <label for="probation_end">Kết thúc thử việc</label>
                     <input v-model="form.probation_end" id="probation_end" type="date" />
@@ -146,6 +185,8 @@ export default {
             form: {
                 name: '',
                 email: '',
+                birth_date: '',
+                profile_image: null,
                 address: '',
                 phone: '',
                 gender: '',
@@ -160,8 +201,12 @@ export default {
                 supervisor: '',
                 salary_type: '',
                 salary_amount: null,
+                work_experience: '', // Thêm trường kinh nghiệm làm việc
+                education_level: ''  // Thêm trường trình độ
             },
             errors: {},
+            newImage: null, // Để lưu file ảnh mới nếu người dùng upload
+            baseUrl: import.meta.env.VITE_API_URL || 'http://localhost:8000' // Thêm baseUrl cho API
         };
     },
     mounted() {
@@ -170,7 +215,7 @@ export default {
     methods: {
         async fetchEmployee() {
             try {
-                const response = await axios.get(`/api/employees/${this.$route.params.id}`);
+                const response = await axios.get(`${this.baseUrl}/api/employees/${this.$route.params.id}`);
                 this.form = response.data;
             } catch (error) {
                 console.error('Error fetching employee:', error);
@@ -182,6 +227,10 @@ export default {
 
             if (!this.form.name) this.errors.name = 'Vui lòng nhập tên';
             if (!this.form.email || !this.isValidEmail(this.form.email)) this.errors.email = 'Vui lòng nhập email hợp lệ';
+            if (!this.form.birth_date) this.errors.birth_date = 'Vui lòng chọn ngày sinh';
+            if (this.newImage && !this.isValidImage(this.newImage)) {
+                this.errors.profile_image = 'Ảnh không hợp lệ (max 2MB, 1024x1024px)';
+            }
             if (!this.form.address) this.errors.address = 'Vui lòng nhập địa chỉ';
             if (!this.form.phone || !this.isValidPhone(this.form.phone)) this.errors.phone = 'Số điện thoại phải là 10 chữ số';
             if (!this.form.gender) this.errors.gender = 'Vui lòng chọn giới tính';
@@ -194,6 +243,8 @@ export default {
             if (!this.form.supervisor) this.errors.supervisor = 'Vui lòng nhập người phụ trách';
             if (!this.form.salary_type) this.errors.salary_type = 'Vui lòng chọn loại lương';
             if (!this.form.salary_amount || this.form.salary_amount <= 0) this.errors.salary_amount = 'Tiền lương phải lớn hơn 0';
+            if (!this.form.work_experience) this.errors.work_experience = 'Vui lòng nhập kinh nghiệm làm việc';
+            if (!this.form.education_level) this.errors.education_level = 'Vui lòng chọn trình độ';
 
             return Object.keys(this.errors).length === 0;
         },
@@ -205,14 +256,55 @@ export default {
             const phoneRegex = /^\d{10}$/;
             return phoneRegex.test(phone);
         },
+        isValidImage(file) {
+            const maxSize = 2 * 1024 * 1024; // 2MB
+            return file.size <= maxSize && file.type.startsWith('image/');
+        },
+        handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const img = new Image();
+                img.onload = () => {
+                    if (img.width > 1024 || img.height > 1024) {
+                        this.errors.profile_image = 'Kích thước ảnh tối đa 1024x1024px';
+                    }
+                };
+                img.src = URL.createObjectURL(file);
+                this.newImage = file; // Lưu file ảnh mới
+            }
+        },
         async updateEmployee() {
             if (this.validateForm()) {
+                const formData = new FormData();
+                for (const [key, value] of Object.entries(this.form)) {
+                    if (key === 'end_date' || key === 'probation_end') {
+                        formData.append(key, value || null);
+                    } else if (key === 'salary_amount') {
+                        formData.append(key, Number(value));
+                    } else if (key !== 'profile_image' && value !== null) {
+                        formData.append(key, value);
+                    }
+                }
+
+                // Nếu có ảnh mới, thêm vào formData
+                if (this.newImage) {
+                    formData.append('profile_image', this.newImage);
+                }
+
+                // Thêm _method để giả lập PUT qua POST
+                formData.append('_method', 'PUT');
+
                 try {
-                    await axios.put(`/api/employees/${this.$route.params.id}`, this.form);
+                    const response = await axios.post(`${this.baseUrl}/api/employees/${this.$route.params.id}`, formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    });
+                    console.log('Phản hồi từ server:', response.data);
                     this.$router.push('/');
                 } catch (error) {
                     console.error('Error updating employee:', error);
-                    alert('Có lỗi xảy ra khi cập nhật nhân viên!');
+                    alert('Có lỗi xảy ra khi cập nhật nhân viên: ' + (error.response?.data?.message || error.message));
                 }
             } else {
                 alert('Vui lòng điền đầy đủ và chính xác thông tin!');
@@ -224,15 +316,7 @@ export default {
 
 <style scoped>
 .container {
-    max-width: 900px;
-    /* margin: 0 auto; */
     padding: 20px;
-}
-
-h1 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 20px;
 }
 
 .employee-form {
@@ -276,6 +360,18 @@ select:focus {
     outline: none;
     border-color: #007bff;
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+.note {
+    color: #666;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.current-image {
+    color: #333;
+    font-size: 12px;
+    margin-top: 5px;
 }
 
 .error {

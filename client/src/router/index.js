@@ -9,9 +9,9 @@ const routes = [
   { path: "/create", component: EmployeeCreate },
   { path: "/edit/:id", component: EmployeeEdit },
   {
-     path: "/attendance",
-     name: "Attendance",
-     component: Attendance, // Chấm công
+    path: "/attendance",
+    name: "Attendance",
+    component: Attendance, // Chấm công
   },
   //   {
   //     path: "/payroll",

@@ -1,15 +1,25 @@
 <template>
     <div class="container">
+        <div class="search-wrapper">
+            <div class="search-container">
+                <input v-model="searchQuery" type="text" placeholder="Tìm kiếm theo ID, tên, phòng ban, vị trí..."
+                    class="search-input">
+            </div>
+            <router-link to="/create" class="btn btn-add">Thêm nhân viên</router-link>
+        </div>
 
         <div class="table-wrapper">
-            <router-link to="/create" class="btn btn-add">Thêm nhân viên</router-link>
             <table class="employee-table">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Tên</th>
+                        <th>Ảnh</th>
+                        <th>Họ và Tên</th>
                         <th>Giới tính</th>
                         <th>Số điện thoại</th>
+                        <th>Phòng ban</th>
+                        <th>Vị trí</th>
+                        <th>Trình độ</th> <!-- Thêm cột Trình độ -->
                         <th>Ngày bắt đầu</th>
                         <th>Hợp đồng</th>
                         <th>Hành động</th>
@@ -18,9 +28,17 @@
                 <tbody>
                     <tr v-for="employee in paginatedEmployees" :key="employee.id">
                         <td>{{ "NV" + employee.id }}</td>
+                        <td>
+                            <img v-if="employee.profile_image" :src="'/storage/' + employee.profile_image" alt="Profile"
+                                class="profile-img">
+                            <span v-else>Không có ảnh</span>
+                        </td>
                         <td>{{ truncate(employee.name, 20) }}</td>
                         <td>{{ employee.gender }}</td>
                         <td>{{ employee.phone }}</td>
+                        <td>{{ truncate(employee.department, 15) }}</td>
+                        <td>{{ truncate(employee.position, 15) }}</td>
+                        <td>{{ truncate(employee.education_level, 15) }}</td> <!-- Hiển thị Trình độ -->
                         <td>{{ formatDate(employee.start_date) }}</td>
                         <td>{{ truncate(employee.salary_type, 15) }}</td>
                         <td>
@@ -32,7 +50,6 @@
             </table>
         </div>
 
-        <!-- Pagination -->
         <div class="pagination">
             <button @click="prevPage" :disabled="currentPage === 1" class="btn btn-page">
                 Trang trước
@@ -53,21 +70,49 @@ export default {
         return {
             employees: [],
             currentPage: 1,
-            itemsPerPage: 10,
+            itemsPerPage: 5, // Giới hạn 5 thông tin mỗi trang
+            searchQuery: ''
         };
     },
     mounted() {
         this.fetchEmployees();
     },
     computed: {
+        filteredEmployees() {
+            if (!this.searchQuery) {
+                return this.employees;
+            }
+
+            const query = this.searchQuery.toLowerCase();
+            return this.employees.filter(employee => {
+                const employeeId = `nv${employee.id}`.toLowerCase();
+                const employeeName = employee.name.toLowerCase();
+                const employeeDepartment = employee.department.toLowerCase();
+                const employeePosition = employee.position.toLowerCase();
+                const employeeEducationLevel = employee.education_level.toLowerCase(); // Thêm tìm kiếm theo Trình độ
+
+                return (
+                    employeeId.includes(query) ||
+                    employeeName.includes(query) ||
+                    employeeDepartment.includes(query) ||
+                    employeePosition.includes(query) ||
+                    employeeEducationLevel.includes(query) // Tìm kiếm theo Trình độ
+                );
+            });
+        },
         totalPages() {
-            return Math.ceil(this.employees.length / this.itemsPerPage);
+            return Math.ceil(this.filteredEmployees.length / this.itemsPerPage);
         },
         paginatedEmployees() {
             const start = (this.currentPage - 1) * this.itemsPerPage;
             const end = start + this.itemsPerPage;
-            return this.employees.slice(start, end);
+            return this.filteredEmployees.slice(start, end);
         },
+    },
+    watch: {
+        searchQuery() {
+            this.currentPage = 1; // Reset về trang 1 khi thay đổi tìm kiếm
+        }
     },
     methods: {
         async fetchEmployees() {
@@ -113,20 +158,44 @@ export default {
 
 <style scoped>
 .container {
-    max-width: 2000px;
-    /* margin: 0 auto; */
+    max-width: 85vw;
     padding: 20px;
 }
 
-h1 {
-    text-align: center;
-    color: #333;
+.search-wrapper {
+    position: relative;
     margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
-.table-wrapper {
+.search-container {
     position: relative;
-    margin-top: 40px;
+    width: 350px;
+    transition: all 0.3s ease;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 40px 12px 15px;
+    border: 2px solid #ddd;
+    border-radius: 25px;
+    font-size: 14px;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.search-input:hover {
+    background-color: #f8f9fa;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+    width: 105%;
 }
 
 .btn {
@@ -142,19 +211,30 @@ h1 {
 .btn-add {
     background-color: #28a745;
     color: white;
-    position: absolute;
-    top: -40px;
-    right: 0;
-    padding: 10px;
-    /* margin-bottom: 15px; */
+    padding: 10px 20px;
+    border-radius: 25px;
+    transition: all 0.3s ease;
 }
 
 .btn-add:hover {
     background-color: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.table-wrapper {
+    position: relative;
+    margin-top: 20px;
+    overflow-x: auto;
+    /* Kích hoạt thanh cuộn ngang khi tràn */
+    white-space: nowrap;
+    /* Ngăn xuống dòng */
 }
 
 .employee-table {
     width: 100%;
+    min-width: 1300px;
+    /* Tăng min-width để phù hợp với cột mới */
     border-collapse: collapse;
     background: #fff;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -182,6 +262,12 @@ h1 {
 
 .employee-table tr:hover {
     background-color: #f5f5f5;
+}
+
+.profile-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
 }
 
 .btn-edit {
