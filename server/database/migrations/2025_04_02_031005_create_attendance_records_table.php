@@ -15,11 +15,14 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('employee_id');
             $table->date('attendance_date');
-            $table->enum('status', ['present', 'absent']);
+            $table->enum('status', ['present', 'absent_with_permission', 'absent_without_permission', 'late']);
+            $table->unsignedInteger('late_count')->default(0);
+            $table->string('note')->nullable();
             $table->timestamps();
             
             // Add foreign key constraint if needed
-            $table->foreign('employee_id')->references('id')->on('employees');
+            $table->foreign('employee_id')->references('id')->on('employees')
+            ->onDelete('cascade');
         });
     }
 

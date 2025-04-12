@@ -10,7 +10,7 @@
           <font-awesome-icon icon="chevron-right" />
         </button>
         <button @click="setToday" class="btn btn-outline-primary today-btn">
-          Today
+          Hôm nay
         </button>
       </div>
       <input v-model="searchQuery" type="text" placeholder="Tìm kiếm nhân viên (mã hoặc tên)"
@@ -26,15 +26,30 @@
         <table class="table table-striped attendance-table">
           <thead>
             <tr>
-              <th>Employee ID</th>
-              <th>Name</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
+            <th>Mã số nhân viên</th>
+            <th>Họ và tên</th>
+            <th>Trạng thái</th>
+            <th>Có mặt</th>
+            <th colspan="2">Vắng mặt</th> <!-- Parent column for Absent -->
+            <th>Đi trễ</th>
+            <th>Số lần trễ</th>
+            <th>Ghi chú</th>
+          </tr>
+          <tr>
+            <th></th> <!-- Empty cell for Employee ID -->
+            <th></th> <!-- Empty cell for Name -->
+            <th></th> <!-- Empty cell for Status -->
+            <th></th> <!-- Empty cell for Present -->
+            <th class="with-permission">Có phép</th> <!-- Sub-column for "With Permission" -->
+            <th class="without-permission">Không phép</th> <!-- Sub-column for "Without Permission" -->
+            <th></th> <!-- Empty cell for Late -->
+            <th></th> <!-- Empty cell for Late Count -->
+            <th></th> <!-- Empty cell for Note -->
+          </tr>
           </thead>
           <tbody>
             <tr v-for="employee in filteredEmployees" :key="employee.id">
-              <td>{{ employee.id }}</td>
+              <td>{{ "NV" + employee.id }}</td>
               <td>{{ employee.name }}</td>
               <td>
                 <span :class="statusClass(employee.status)">
@@ -42,11 +57,41 @@
                 </span>
               </td>
               <td>
-                <select v-model="employee.status" @change="updateStatus(employee)" class="form-control status-select">
-                  <option value="">Select Status</option>
-                  <option value="present">Present</option>
-                  <option value="absent">Absent</option>
-                </select>
+                <input
+                  type="checkbox"
+                  :checked="employee.status === 'present'"
+                  @change="updateStatus(employee, 'present', $event.target.checked)"
+                />
+              </td>
+              <td class="with-permission">
+                <input
+                  type="checkbox"
+                  :checked="employee.status === 'absent_with_permission'"
+                  @change="updateStatus(employee, 'absent_with_permission', $event.target.checked)"
+                />
+              </td>
+              <td class="without-permission">
+                <input
+                  type="checkbox"
+                  :checked="employee.status === 'absent_without_permission'"
+                  @change="updateStatus(employee, 'absent_without_permission', $event.target.checked)"
+                />
+              </td>
+              <td>
+                <input
+                  type="checkbox"
+                  :checked="employee.status === 'late'"
+                  @change="updateStatus(employee, 'late', $event.target.checked)"
+                />
+              </td>
+              <td>{{ employee.late_count || 0 }}</td>
+              <td>
+                <input
+                  type="text"
+                  v-model="employee.note"
+                  placeholder="Ghi chú"
+                  class="form-control"
+                />
               </td>
             </tr>
           </tbody>
@@ -59,7 +104,7 @@
             <i class="fas fa-spinner fa-spin"></i> Saving...
           </span>
           <span v-else>
-            <i class="fas fa-save"></i> Save Attendance
+            <i class="fas fa-save"></i> Lưu điểm danh
           </span>
         </button>
       </div>
@@ -111,8 +156,27 @@ export default {
         this.loading = false;
       }
     },
-    updateStatus(employee) {
-      // Immediate feedback for the user
+    updateStatus(employee, status, isChecked) {
+      if (!isChecked) {
+        // Reset all statuses
+        employee.status = '';
+        return;
+      }
+      
+        // Set the selected status
+        if (status === 'present') {
+          employee.status = 'present';
+        } else if (status === 'absent_with_permission') {
+          employee.status = 'absent_with_permission';
+        } else if (status === 'absent_without_permission') {
+          employee.status = 'absent_without_permission';
+        } else if (status === 'late') {
+          if (employee.status !== 'late') {
+          employee.late_count = (employee.late_count || 0) + 1; // Increment late count only if it's the first late check
+          }
+          employee.status = 'late';
+        }
+
       this.$toast.success(`Status updated for ${employee.name}`);
     },
     async saveAttendance() {
@@ -122,6 +186,7 @@ export default {
           employee_id: employee.id,
           attendance_date: this.selectedDate,
           status: employee.status || '',
+          note: employee.note || '',
         }));
 
         // Log the attendance data
@@ -156,7 +221,8 @@ export default {
     statusClass(status) {
       return {
         'status-present': status === 'present',
-        'status-absent': status === 'absent',
+        'status-absent_with_permission': status === 'absent_with_permission',
+        'status-absent_without_permission': status === 'absent_without_permission',
         'status-late': status === 'late',
         'status-half-day': status === 'half-day',
         'status-on-leave': status === 'on-leave',
@@ -227,11 +293,11 @@ export default {
 
 .attendance-table th,
 .attendance-table td {
-  text-align: left;
+  text-align: center;
   padding: 12px;
-  border-bottom: 1px solid #ddd;
+  border: 1px solid #ddd;
+  
 }
-
 .attendance-table th {
   background-color: #f1f1f1;
   font-weight: bold;
@@ -253,8 +319,16 @@ span.status-present {
   font-weight: bold;
 }
 
-span.status-absent {
+span.status-absent_with_permission {
   color: #dc3545;
+  font-weight: bold;
+}
+span.status-absent_without_permission {
+  color: #dc3545;
+  font-weight: bold;
+}
+span.status-late {
+  color: #ffc107;
   font-weight: bold;
 }
 

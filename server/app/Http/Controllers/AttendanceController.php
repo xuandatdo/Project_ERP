@@ -26,6 +26,7 @@ class AttendanceController extends Controller
                 'id' => $employee->id,
                 'name' => $employee->name,
                 'status' => $attendance ? $attendance->status : null,
+                'late_count' => $attendance ? $attendance->late_count : 0, // Include late_count
             ];
         });
 
@@ -42,18 +43,32 @@ class AttendanceController extends Controller
         'attendance' => 'required|array',
         'attendance.*.employee_id' => 'required|exists:employees,id',
         'attendance.*.attendance_date' => 'required|date',
-        'attendance.*.status' => 'nullable|in:present,absent',
+        'attendance.*.status' => 'nullable|in:present,absent_with_permission,absent_without_permission,late',
+        'attendance.*.note' => 'nullable|string|max:255',
     ]);
 
     try {
         foreach ($request->attendance as $record) {
-            AttendanceRecord::updateOrCreate(
+            $attendanceRecord  = AttendanceRecord::updateOrCreate(
                 [
                     'employee_id' => $record['employee_id'],
                     'attendance_date' => $record['attendance_date']
-                ],
-                ['status' => $record['status']]
-            );
+                ]);
+
+                // Handle late count logic
+                if ($record['status'] === 'late') {
+                    if (!$attendanceRecord->exists || $attendanceRecord->status !== 'late') {
+                        // Increment late count only if it's the first late check of the day
+                        $attendanceRecord->late_count = ($attendanceRecord->late_count ?? 0) + 1;
+                    }
+                } elseif ($attendanceRecord->status === 'late' && $record['status'] !== 'late') {
+                    // Decrement late count if the status changes from "late" to something else
+                    $attendanceRecord->late_count = max(($attendanceRecord->late_count ?? 0) - 1, 0);
+                }
+
+                $attendanceRecord->status = $record['status'];
+                $attendanceRecord->note = $record['note'] ?? null;
+                $attendanceRecord->save();
         }
 
         return response()->json([
