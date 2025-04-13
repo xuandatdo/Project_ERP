@@ -5,10 +5,6 @@
             <router-link to="/departments/create" class="btn btn-primary">Thêm phòng ban mới</router-link>
         </div>
 
-        <div class="alert alert-info" v-if="message">
-            {{ message }}
-        </div>
-
         <div class="table-responsive">
             <table class="table">
                 <thead>

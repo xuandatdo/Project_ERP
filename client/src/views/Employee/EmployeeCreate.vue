@@ -2,170 +2,160 @@
     <div class="container">
         <form @submit.prevent="createEmployee" class="employee-form" enctype="multipart/form-data">
             <div class="form-grid">
-                <!-- Tên -->
-                <div class="form-group">
-                    <label for="name">Họ và tên <span class="required">*</span></label>
-                    <input v-model="form.name" id="name" type="text" placeholder="Nhập họ và tên" required />
-                    <span v-if="errors.name" class="error">{{ errors.name }}</span>
+                <!-- Hàng 1: Ảnh nhân sự và Họ tên -->
+                <div class="form-row">
+                    <!-- Ảnh nhân sự -->
+                    <div class="form-group">
+                        <label for="profile_image">Ảnh nhân sự <span class="required">*</span></label>
+                        <input @change="handleImageUpload" id="profile_image" type="file" accept="image/*" required />
+                        <span class="note">Dung lượng tối đa: 2MB, Kích thước tối đa: 1024x1024px</span>
+                        <span v-if="errors.profile_image" class="error">{{ errors.profile_image }}</span>
+                    </div>
+                    <!-- Tên -->
+                    <div class="form-group">
+                        <label for="name">Họ và tên <span class="required">*</span></label>
+                        <input v-model="form.name" id="name" type="text" placeholder="Nhập họ và tên" required />
+                        <span v-if="errors.name" class="error">{{ errors.name }}</span>
+                    </div>
                 </div>
 
-                <!-- Email -->
-                <div class="form-group">
-                    <label for="email">Email <span class="required">*</span></label>
-                    <input v-model="form.email" id="email" type="email" placeholder="Nhập email" required />
-                    <span v-if="errors.email" class="error">{{ errors.email }}</span>
+                <!-- Hàng 2: Email, Ngày sinh, Địa chỉ -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">Email <span class="required">*</span></label>
+                        <input v-model="form.email" id="email" type="email" placeholder="Nhập email" required />
+                        <span v-if="errors.email" class="error">{{ errors.email }}</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="birth_date">Ngày sinh <span class="required">*</span></label>
+                        <input v-model="form.birth_date" id="birth_date" type="date" required />
+                        <span v-if="errors.birth_date" class="error">{{ errors.birth_date }}</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Địa chỉ <span class="required">*</span></label>
+                        <input v-model="form.address" id="address" type="text" placeholder="Nhập địa chỉ" required />
+                        <span v-if="errors.address" class="error">{{ errors.address }}</span>
+                    </div>
                 </div>
 
-                <!-- Ngày sinh -->
-                <div class="form-group">
-                    <label for="birth_date">Ngày sinh <span class="required">*</span></label>
-                    <input v-model="form.birth_date" id="birth_date" type="date" required />
-                    <span v-if="errors.birth_date" class="error">{{ errors.birth_date }}</span>
+                <!-- Hàng 3: Điện thoại, Giới tính, Thời gian làm việc -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="phone">Điện thoại <span class="required">*</span></label>
+                        <input v-model="form.phone" id="phone" type="tel" placeholder="Nhập số điện thoại" required
+                            pattern="[0-9]{10}" />
+                        <span v-if="errors.phone" class="error">{{ errors.phone }}</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="gender">Giới tính <span class="required">*</span></label>
+                        <select v-model="form.gender" id="gender" required>
+                            <option value="" disabled>Chọn giới tính</option>
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                        </select>
+                        <span v-if="errors.gender" class="error">{{ errors.gender }}</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="work_hours">Thời gian làm việc <span class="required">*</span></label>
+                        <input v-model="form.work_hours" id="work_hours" type="text" placeholder="Ví dụ: 8h/ngày" required />
+                        <span v-if="errors.work_hours" class="error">{{ errors.work_hours }}</span>
+                    </div>
                 </div>
 
-                <!-- Ảnh nhân sự -->
-                <div class="form-group">
-                    <label for="profile_image">Ảnh nhân sự <span class="required">*</span></label>
-                    <input @change="handleImageUpload" id="profile_image" type="file" accept="image/*" required />
-                    <span class="note">Dung lượng tối đa: 2MB, Kích thước tối đa: 1024x1024px</span>
-                    <span v-if="errors.profile_image" class="error">{{ errors.profile_image }}</span>
+                <!-- Hàng 4: Trình độ, Kinh nghiệm, Người phụ trách -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="education_level">Trình độ <span class="required">*</span></label>
+                        <select v-model="form.education_level" id="education_level" required>
+                            <option value="" disabled>Chọn trình độ</option>
+                            <option value="THPT">THPT</option>
+                            <option value="Cao đẳng">Cao đẳng</option>
+                            <option value="Đại học">Đại học</option>
+                            <option value="Thạc sĩ">Thạc sĩ</option>
+                            <option value="Tiến sĩ">Tiến sĩ</option>
+                        </select>
+                        <span v-if="errors.education_level" class="error">{{ errors.education_level }}</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="work_experience">Kinh nghiệm làm việc <span class="required">*</span></label>
+                        <input v-model="form.work_experience" id="work_experience" type="text" placeholder="Ví dụ: 2 năm" required />
+                        <span v-if="errors.work_experience" class="error">{{ errors.work_experience }}</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="supervisor">Người phụ trách <span class="required">*</span></label>
+                        <input v-model="form.supervisor" id="supervisor" type="text" placeholder="Nhập tên người phụ trách" required />
+                        <span v-if="errors.supervisor" class="error">{{ errors.supervisor }}</span>
+                    </div>
                 </div>
 
-                <!-- Địa chỉ -->
-                <div class="form-group">
-                    <label for="address">Địa chỉ <span class="required">*</span></label>
-                    <input v-model="form.address" id="address" type="text" placeholder="Nhập địa chỉ" required />
-                    <span v-if="errors.address" class="error">{{ errors.address }}</span>
+                <!-- Hàng 5: Phòng ban, Vị trí, Địa điểm làm việc -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="department_id">Phòng ban <span class="required">*</span></label>
+                        <select v-model="form.department_id" id="department_id" required @change="loadPositions">
+                            <option value="" disabled>Chọn phòng ban</option>
+                            <option v-for="dept in departments" :key="dept.id" :value="dept.id">{{ dept.name }}</option>
+                        </select>
+                        <span v-if="errors.department_id" class="error">{{ errors.department_id }}</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="position_id">Vị trí <span class="required">*</span></label>
+                        <select v-model="form.position_id" id="position_id" required :disabled="!form.department_id">
+                            <option value="" disabled>Chọn vị trí</option>
+                            <option v-for="pos in positions" :key="pos.id" :value="pos.id">{{ pos.name }}</option>
+                        </select>
+                        <span v-if="errors.position_id" class="error">{{ errors.position_id }}</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="workplace">Địa điểm làm việc <span class="required">*</span></label>
+                        <input v-model="form.workplace" id="workplace" type="text" placeholder="Nhập địa điểm" required />
+                        <span v-if="errors.workplace" class="error">{{ errors.workplace }}</span>
+                    </div>
                 </div>
 
-                <!-- Điện thoại -->
-                <div class="form-group">
-                    <label for="phone">Điện thoại <span class="required">*</span></label>
-                    <input v-model="form.phone" id="phone" type="tel" placeholder="Nhập số điện thoại" required
-                        pattern="[0-9]{10}" />
-                    <span v-if="errors.phone" class="error">{{ errors.phone }}</span>
+                <!-- Hàng 6: Email, Ngày sinh, Địa chỉ (Duplicate of row 2) -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email2">Email <span class="required">*</span></label>
+                        <input v-model="form.email" id="email2" type="email" placeholder="Nhập email" required />
+                        <span v-if="errors.email" class="error">{{ errors.email }}</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="birth_date2">Ngày sinh <span class="required">*</span></label>
+                        <input v-model="form.birth_date" id="birth_date2" type="date" required />
+                        <span v-if="errors.birth_date" class="error">{{ errors.birth_date }}</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="address2">Địa chỉ <span class="required">*</span></label>
+                        <input v-model="form.address" id="address2" type="text" placeholder="Nhập địa chỉ" required />
+                        <span v-if="errors.address" class="error">{{ errors.address }}</span>
+                    </div>
                 </div>
 
-                <!-- Kinh nghiệm làm việc -->
-                <div class="form-group">
-                    <label for="work_experience">Kinh nghiệm làm việc <span class="required">*</span></label>
-                    <input v-model="form.work_experience" id="work_experience" type="text" placeholder="Ví dụ: 2 năm"
-                        required />
-                    <span v-if="errors.work_experience" class="error">{{ errors.work_experience }}</span>
-                </div>
-
-                <!-- Trình độ -->
-                <div class="form-group">
-                    <label for="education_level">Trình độ <span class="required">*</span></label>
-                    <select v-model="form.education_level" id="education_level" required>
-                        <option value="" disabled>Chọn trình độ</option>
-                        <option value="THPT">THPT</option>
-                        <option value="Cao đẳng">Cao đẳng</option>
-                        <option value="Đại học">Đại học</option>
-                        <option value="Thạc sĩ">Thạc sĩ</option>
-                    </select>
-                    <span v-if="errors.education_level" class="error">{{ errors.education_level }}</span>
-                </div>
-
-                <!-- Giới tính -->
-                <div class="form-group">
-                    <label for="gender">Giới tính <span class="required">*</span></label>
-                    <select v-model="form.gender" id="gender" required>
-                        <option value="" disabled>Chọn giới tính</option>
-                        <option value="Nam">Nam</option>
-                        <option value="Nữ">Nữ</option>
-                    </select>
-                    <span v-if="errors.gender" class="error">{{ errors.gender }}</span>
-                </div>
-
-                <!-- Phòng ban -->
-                <div class="form-group">
-                    <label for="department_id">Phòng ban <span class="required">*</span></label>
-                    <select v-model="form.department_id" id="department_id" required @change="loadPositions">
-                        <option value="" disabled>Chọn phòng ban</option>
-                        <option v-for="dept in departments" :key="dept.id" :value="dept.id">{{ dept.name }}</option>
-                    </select>
-                    <span v-if="errors.department_id" class="error">{{ errors.department_id }}</span>
-                </div>
-
-                <!-- Vị trí -->
-                <div class="form-group">
-                    <label for="position_id">Vị trí <span class="required">*</span></label>
-                    <select v-model="form.position_id" id="position_id" required :disabled="!form.department_id">
-                        <option value="" disabled>Chọn vị trí</option>
-                        <option v-for="pos in positions" :key="pos.id" :value="pos.id">{{ pos.name }}</option>
-                    </select>
-                    <span v-if="errors.position_id" class="error">{{ errors.position_id }}</span>
-                </div>
-
-                <!-- Địa điểm làm việc -->
-                <div class="form-group">
-                    <label for="workplace">Địa điểm làm việc <span class="required">*</span></label>
-                    <input v-model="form.workplace" id="workplace" type="text" placeholder="Nhập địa điểm" required />
-                    <span v-if="errors.workplace" class="error">{{ errors.workplace }}</span>
-                </div>
-
-                <!-- Ngày bắt đầu -->
-                <div class="form-group">
-                    <label for="start_date">Ngày bắt đầu <span class="required">*</span></label>
-                    <input v-model="form.start_date" id="start_date" type="date" required />
-                    <span v-if="errors.start_date" class="error">{{ errors.start_date }}</span>
-                </div>
-
-                <!-- Ngày kết thúc -->
-                <div class="form-group">
-                    <label for="end_date">Ngày kết thúc</label>
-                    <input v-model="form.end_date" id="end_date" type="date" />
-                </div>
-
-                <!-- Kết thúc thử việc -->
-                <div class="form-group">
-                    <label for="probation_end">Kết thúc thử việc</label>
-                    <input v-model="form.probation_end" id="probation_end" type="date" />
-                </div>
-
-                <!-- Thời gian làm việc -->
-                <div class="form-group">
-                    <label for="work_hours">Thời gian làm việc <span class="required">*</span></label>
-                    <input v-model="form.work_hours" id="work_hours" type="text" placeholder="Ví dụ: 8h/ngày"
-                        required />
-                    <span v-if="errors.work_hours" class="error">{{ errors.work_hours }}</span>
-                </div>
-
-                <!-- Cấu trúc lương -->
-                <div class="form-group">
-                    <label for="salary_structure">Cấu trúc lương <span class="required">*</span></label>
-                    <input v-model="form.salary_structure" id="salary_structure" type="text"
-                        placeholder="Ví dụ: Lương cơ bản + Thưởng" required />
-                    <span v-if="errors.salary_structure" class="error">{{ errors.salary_structure }}</span>
-                </div>
-
-                <!-- Người phụ trách -->
-                <div class="form-group">
-                    <label for="supervisor">Người phụ trách <span class="required">*</span></label>
-                    <input v-model="form.supervisor" id="supervisor" type="text" placeholder="Nhập tên người phụ trách"
-                        required />
-                    <span v-if="errors.supervisor" class="error">{{ errors.supervisor }}</span>
-                </div>
-
-                <!-- Loại tiền lương -->
-                <div class="form-group">
-                    <label for="salary_type">Loại tiền lương <span class="required">*</span></label>
-                    <select v-model="form.salary_type" id="salary_type" required>
-                        <option value="" disabled>Chọn loại lương</option>
-                        <option value="Lương tháng">Lương tháng</option>
-                        <option value="Lương ngày">Lương ngày</option>
-                        <option value="Lương giờ">Lương giờ</option>
-                    </select>
-                    <span v-if="errors.salary_type" class="error">{{ errors.salary_type }}</span>
-                </div>
-
-                <!-- Tiền lương -->
-                <div class="form-group">
-                    <label for="salary_amount">Tiền lương <span class="required">*</span></label>
-                    <input v-model.number="form.salary_amount" id="salary_amount" type="number"
-                        placeholder="Nhập số tiền" required min="0" />
-                    <span v-if="errors.salary_amount" class="error">{{ errors.salary_amount }}</span>
+                <!-- Hàng 7: Cấu trúc lương, Loại tiền lương, Tiền lương -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="salary_structure">Cấu trúc lương <span class="required">*</span></label>
+                        <input v-model="form.salary_structure" id="salary_structure" type="text"
+                            placeholder="Ví dụ: Lương cơ bản + Thưởng" required />
+                        <span v-if="errors.salary_structure" class="error">{{ errors.salary_structure }}</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="salary_type">Loại tiền lương <span class="required">*</span></label>
+                        <select v-model="form.salary_type" id="salary_type" required>
+                            <option value="" disabled>Chọn loại lương</option>
+                            <option value="Lương tháng">Lương tháng</option>
+                            <option value="Lương ngày">Lương ngày</option>
+                            <option value="Lương giờ">Lương giờ</option>
+                        </select>
+                        <span v-if="errors.salary_type" class="error">{{ errors.salary_type }}</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="salary_amount">Tiền lương <span class="required">*</span></label>
+                        <input v-model.number="form.salary_amount" id="salary_amount" type="number"
+                            placeholder="Nhập số tiền" required min="0" />
+                        <span v-if="errors.salary_amount" class="error">{{ errors.salary_amount }}</span>
+                    </div>
                 </div>
 
 
@@ -357,9 +347,19 @@ export default {
 }
 
 .form-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    flex-direction: column;
     gap: 20px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.form-row:first-child {
+    grid-template-columns: repeat(2, 1fr);
 }
 
 .form-group {

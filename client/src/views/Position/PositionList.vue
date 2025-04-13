@@ -11,10 +11,6 @@
             </div>
         </div>
 
-        <div class="alert alert-info" v-if="message">
-            {{ message }}
-        </div>
-
         <div class="table-responsive">
             <table class="table">
                 <thead>

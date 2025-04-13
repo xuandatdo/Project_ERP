@@ -9,8 +9,8 @@
             {{ message }}
         </div>
 
-        <div class="table-responsive">
-            <table class="table">
+        <div class="table-responsive" style="overflow-x: auto;">
+            <table class="table table-bordered">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -21,6 +21,7 @@
                         <th>Ưu tiên</th>
                         <th>Tiến độ</th>
                         <th>Trạng thái</th>
+                        <th>Mô tả</th>
                         <th>Thao tác</th>
                     </tr>
                 </thead>
@@ -31,19 +32,10 @@
                         <td>{{ task.employee_name }}</td>
                         <td>{{ formatDate(task.start_date) }}</td>
                         <td>{{ formatDate(task.end_date) }}</td>
-                        <td>
-                            <span :class="getPriorityClass(task.priority)">{{ task.priority }}</span>
-                        </td>
-                        <td>
-                            <div class="progress">
-                                <div class="progress-bar" :style="{ width: task.progress + '%' }" :class="getProgressClass(task.progress)">
-                                    {{ task.progress }}%
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <span :class="getStatusClass(task.status)">{{ task.status }}</span>
-                        </td>
+                        <td>{{ task.priority }}</td>
+                        <td>{{ task.progress }}%</td>
+                        <td>{{ task.status }}</td>
+                        <td>{{ task.description }}</td>
                         <td>
                             <div class="action-buttons">
                                 <router-link :to="`/tasks/${task.id}/edit`" class="btn btn-sm btn-edit btn-primary">Sửa</router-link>
@@ -189,13 +181,26 @@ export default {
 .table td {
     padding: 12px;
     text-align: left;
+    border: 1px solid #dee2e6;
 }
 
 .table th {
     background-color: #f5f5f5;
     font-weight: bold;
+    white-space: nowrap;
 }
 
+.table td {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.table-responsive {
+    overflow-x: auto;
+    min-width: 100%;
+}
 .action-buttons {
     display: flex;
     gap: 8px;
@@ -215,10 +220,11 @@ export default {
     color: white;
 }
 
-.btn-edit{
+.btn-edit {
     background-color: #ffc107;
     color: #333;
 }
+
 .btn-danger {
     background-color: #dc3545;
     color: white;
@@ -235,75 +241,5 @@ export default {
     align-items: center;
     gap: 16px;
     margin-top: 20px;
-}
-
-.progress {
-    height: 20px;
-    background-color: #e9ecef;
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-.progress-bar {
-    height: 100%;
-    color: black;
-    text-align: center;
-    line-height: 20px;
-    transition: width 0.3s ease;
-    font-weight: bold;
-}
-
-.bg-danger {
-    background-color: #ff4444;
-}
-
-.bg-warning {
-    background-color: #ffbb33;
-}
-
-.bg-success {
-    background-color: rgb(243, 229, 229);
-}
-.priority,
-.status {
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-.priority-high {
-    background-color: #dc3545;
-    color: white;
-}
-
-.priority-medium {
-    background-color: #ffc107;
-    color: black;
-}
-
-.priority-low {
-    background-color: #28a745;
-    color: white;
-}
-
-.status-not-started {
-    background-color: #6c757d;
-    color: white;
-}
-
-.status-in-progress {
-    background-color: #007bff;
-    color: white;
-}
-
-.status-completed {
-    background-color: #28a745;
-    color: white;
-}
-
-.status-paused {
-    background-color: #ffc107;
-    color: black;
 }
 </style>
