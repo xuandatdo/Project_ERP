@@ -13,7 +13,7 @@
           Hôm nay
         </button>
       </div>
-      <input v-model="searchQuery" type="text" placeholder="Tìm kiếm nhân viên (mã hoặc tên)"
+      <input v-model="searchQuery" type="text" placeholder="Tìm kiếm nhân viên (tên)"
         class="form-control search-input" />
     </div>
 
@@ -236,7 +236,7 @@ export default {
 <style scoped>
 /* General Container Styling */
 .attendance-container {
-  max-width: 1200px;
+  max-width: 1800px;
   /* margin: 0 auto; */
   padding: 20px;
   background-color: #f9f9f9;

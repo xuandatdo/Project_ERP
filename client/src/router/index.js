@@ -12,16 +12,14 @@ import PositionEdit from "../views/Position/PositionEdit.vue";
 import TaskList from "../views/Task/TaskList.vue";
 import TaskCreate from "../views/Task/TaskCreate.vue";
 import TaskEdit from "../views/Task/TaskEdit.vue";
+import Statistics from "../views/Statistics.vue";
 
 const routes = [
   { path: "/", component: EmployeeList },
   { path: "/create", component: EmployeeCreate },
   { path: "/edit/:id", component: EmployeeEdit },
-  {
-    path: "/attendance",
-    name: "Attendance",
-    component: Attendance, // Chấm công
-  },
+  // Routes cho Attendance
+  { path: "/attendance", name: "Attendance", component: Attendance },
   // Routes cho Department
   { path: "/departments", component: DepartmentList },
   { path: "/departments/create", component: DepartmentCreate },
@@ -34,6 +32,8 @@ const routes = [
   { path: "/tasks", component: TaskList },
   { path: "/tasks/create", component: TaskCreate },
   { path: "/tasks/:id/edit", component: TaskEdit },
+  //Routes cho Statistics
+  { path: "/statistics", component: Statistics},
 ];
 
 const router = createRouter({

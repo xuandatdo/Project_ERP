@@ -81,5 +81,51 @@ class AttendanceController extends Controller
             'error' => $e->getMessage()
         ], 500);
     }
-}
+    }
+    public function getEmployeeStatistics()
+    {
+        $employees = Employee::with(['attendanceRecords'])->get();
+
+        $statistics = $employees->map(function ($employee) {
+            $absentDates = $employee->attendanceRecords
+                ->whereIn('status', ['absent_with_permission', 'absent_without_permission'])
+                ->groupBy('attendance_date')
+                ->map(function ($records, $date) {
+                    return [
+                        'date' => $date,
+                        'count' => $records->count(),
+                    ];
+                })
+                ->values();
+    
+            $calendarData = $employee->attendanceRecords
+                ->whereIn('status', ['absent_with_permission', 'absent_without_permission'])
+                ->groupBy('attendance_date')
+                ->mapWithKeys(function ($records, $date) {
+                    return [$date => $records->count()];
+                });
+    
+            $totalAbsentWithPermission = $employee->attendanceRecords
+                ->where('status', 'absent_with_permission')
+                ->count();
+    
+            $totalAbsentWithoutPermission = $employee->attendanceRecords
+                ->where('status', 'absent_without_permission')
+                ->count();
+    
+            $totalAbsentDays = $totalAbsentWithPermission + $totalAbsentWithoutPermission;
+    
+            return [
+                'id' => $employee->id,
+                'name' => $employee->name,
+                'absent_dates' => $absentDates,
+                'calendar_data' => $calendarData, // Calendar-friendly data
+                'total_absent_with_permission' => $totalAbsentWithPermission,
+                'total_absent_without_permission' => $totalAbsentWithoutPermission,
+                'total_absent_days' => $totalAbsentDays,
+            ];
+        });
+
+    return response()->json($statistics);
+    }
 }

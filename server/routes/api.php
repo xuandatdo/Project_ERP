@@ -22,3 +22,6 @@ Route::get('/positions/department/{departmentId}', [PositionController::class, '
 // Routes cho Task
 Route::resource('tasks', TaskController::class)->except(['create', 'edit']);
 Route::delete('/task-attachments/{id}', [TaskController::class, 'deleteAttachment']);
+
+//Route cho Statistics
+Route::get('/statistics', [AttendanceController::class, 'getEmployeeStatistics']);
