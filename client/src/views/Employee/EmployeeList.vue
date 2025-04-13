@@ -19,7 +19,7 @@
                         <th>Số điện thoại</th>
                         <th>Phòng ban</th>
                         <th>Vị trí</th>
-                        <th>Trình độ</th> <!-- Thêm cột Trình độ -->
+                        <th>Trình độ</th> 
                         <th>Ngày bắt đầu</th>
                         <th>Hợp đồng</th>
                         <th>Hành động</th>
@@ -36,8 +36,8 @@
                         <td>{{ truncate(employee.name, 20) }}</td>
                         <td>{{ employee.gender }}</td>
                         <td>{{ employee.phone }}</td>
-                        <td>{{ truncate(employee.department, 15) }}</td>
-                        <td>{{ truncate(employee.position, 15) }}</td>
+                        <td>{{ truncate(employee.department_name, 15) }}</td>
+                        <td>{{ truncate(employee.position_name, 15) }}</td>
                         <td>{{ truncate(employee.education_level, 15) }}</td> <!-- Hiển thị Trình độ -->
                         <td>{{ formatDate(employee.start_date) }}</td>
                         <td>{{ truncate(employee.salary_type, 15) }}</td>
@@ -158,7 +158,7 @@ export default {
 
 <style scoped>
 .container {
-    max-width: 85vw;
+    max-width: 83vw;
     padding: 20px;
 }
 
@@ -209,18 +209,18 @@ export default {
 }
 
 .btn-add {
-    background-color: #28a745;
+    background-color: #007bff;
     color: white;
     padding: 10px 20px;
-    border-radius: 25px;
+    border-radius: 4px;
     transition: all 0.3s ease;
 }
 
-.btn-add:hover {
+/* .btn-add:hover {
     background-color: #218838;
     transform: translateY(-2px);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
+} */
 
 .table-wrapper {
     position: relative;
@@ -255,9 +255,10 @@ export default {
 }
 
 .employee-table th {
-    background-color: #007bff;
-    color: white;
+    background-color: #f8f9fa;
+    color: black;
     font-weight: bold;
+    border-bottom: 2px solid #dee2e6;
 }
 
 .employee-table tr:hover {
@@ -275,9 +276,8 @@ export default {
     color: #333;
     margin-right: 10px;
 }
-
 .btn-edit:hover {
-    background-color: #e0a800;
+    background-color: #e0a800; 
 }
 
 .btn-delete {

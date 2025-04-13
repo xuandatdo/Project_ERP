@@ -12,7 +12,9 @@
         </div>
 
         <div class="sub-menu" v-show="subMenuOpen">
-          <router-link to="/" class="sub-menu-item">Danh sách nhân sự</router-link>
+          <router-link to="/" class="sub-menu-item">Nhân sự</router-link>
+          <router-link to="/departments" class="sub-menu-item">Phòng ban</router-link>
+          <router-link to="/positions" class="sub-menu-item">Vị trí</router-link>
           <router-link to="/attendance" class="sub-menu-item">Chấm công</router-link>
           <router-link to="/payroll" class="sub-menu-item">Tính lương</router-link>
           <router-link to="/tasks" class="sub-menu-item">Công việc</router-link>
@@ -48,6 +50,10 @@ export default {
         case '/': return 'Danh sách nhân sự';
         case '/create': return 'Thêm nhân viên';
         case '/edit/:id': return 'Sửa nhân viên';
+        case '/departments': return 'Quản lý phòng ban';
+        case '/departments/create': return 'Thêm phòng ban mới';
+        case '/positions': return 'Quản lý vị trí';
+        case '/positions/create': return 'Thêm vị trí mới';
         case '/attendance': return 'Chấm công';
         case '/payroll': return 'Tính lương';
         case '/tasks': return 'Công việc';

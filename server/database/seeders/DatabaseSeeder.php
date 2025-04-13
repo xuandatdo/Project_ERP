@@ -19,5 +19,10 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+        
+        // Gọi DepartmentPositionSeeder để tạo dữ liệu mẫu
+        $this->call([
+            DepartmentPositionSeeder::class,
+        ]);
     }
 }

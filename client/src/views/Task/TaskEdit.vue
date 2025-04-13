@@ -1,0 +1,332 @@
+<template>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h2>Chỉnh sửa công việc</h2>
+            </div>
+            <div class="card-body">
+                <form @submit.prevent="updateTask">
+                    <div class="form-group">
+                        <label for="name">Tên công việc</label>
+                        <input
+                            type="text"
+                            id="name"
+                            v-model="task.name"
+                            class="form-control"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="employee_id">Người phụ trách</label>
+                            <select
+                                id="employee_id"
+                                v-model="task.employee_id"
+                                class="form-control"
+                                required
+                            >
+                                <option value="">Chọn người phụ trách</option>
+                                <option v-for="employee in employees" :key="employee.id" :value="employee.id">
+                                    {{ employee.name }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="form-group col-md-4">
+                            <label for="start_date">Ngày bắt đầu</label>
+                            <input
+                                type="date"
+                                id="start_date"
+                                v-model="task.start_date"
+                                class="form-control"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group col-md-4">
+                            <label for="end_date">Ngày kết thúc</label>
+                            <input
+                                type="date"
+                                id="end_date"
+                                v-model="task.end_date"
+                                class="form-control"
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="priority">Ưu tiên</label>
+                            <select
+                                id="priority"
+                                v-model="task.priority"
+                                class="form-control"
+                                required
+                            >
+                                <option value="">Chọn mức độ ưu tiên</option>
+                                <option value="Cao">Cao</option>
+                                <option value="Trung bình">Trung bình</option>
+                                <option value="Thấp">Thấp</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group col-md-4">
+                            <label for="progress">Tiến độ (%)</label>
+                            <input
+                                type="number"
+                                id="progress"
+                                v-model.number="task.progress"
+                                class="form-control"
+                                min="0"
+                                max="100"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group col-md-4">
+                            <label for="status">Trạng thái</label>
+                            <select
+                                id="status"
+                                v-model="task.status"
+                                class="form-control"
+                                required
+                            >
+                                <option value="">Chọn trạng thái</option>
+                                <option value="Chưa bắt đầu">Chưa bắt đầu</option>
+                                <option value="Đang thực hiện">Đang thực hiện</option>
+                                <option value="Hoàn thành">Hoàn thành</option>
+                                <option value="Tạm dừng">Tạm dừng</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Mô tả công việc</label>
+                        <textarea
+                            id="description"
+                            v-model="task.description"
+                            class="form-control"
+                            rows="4"
+                        ></textarea>
+                    </div>
+
+
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Cập nhật</button>
+                        <router-link to="/tasks" class="btn btn-secondary">Hủy</router-link>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+import axios from 'axios';
+import { ref, reactive, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+
+export default {
+    setup() {
+        const router = useRouter();
+        const route = useRoute();
+        const employees = ref([]);
+        const task = reactive({
+            name: '',
+            employee_id: '',
+            start_date: '',
+            end_date: '',
+            priority: '',
+            progress: 0,
+            status: '',
+            description: '',
+            notes: '',
+            attachments: []
+        });
+
+        const fetchEmployees = async () => {
+            try {
+                const response = await axios.get('/api/employees');
+                employees.value = response.data;
+            } catch (error) {
+                console.error('Error fetching employees:', error);
+            }
+        };
+
+        const fetchTask = async () => {
+            try {
+                const response = await axios.get(`/api/tasks/${route.params.id}`);
+                Object.assign(task, response.data);
+            } catch (error) {
+                console.error('Error fetching task:', error);
+            }
+        };
+
+        const handleFileUpload = (event) => {
+            const files = Array.from(event.target.files);
+            task.attachments.push(...files);
+        };
+
+        const removeAttachment = (index) => {
+            task.attachments.splice(index, 1);
+        };
+
+        const updateTask = async () => {
+            try {
+                const formData = new FormData();
+                Object.keys(task).forEach(key => {
+                    if (key === 'attachments') {
+                        task[key].forEach(file => {
+                            formData.append('attachments[]', file);
+                        });
+                    } else {
+                        formData.append(key, task[key]);
+                    }
+                });
+
+                await axios.post(`/api/tasks/${route.params.id}?_method=PUT`, formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+                
+                alert('Cập nhật công việc thành công!');
+                router.push('/tasks');
+            } catch (error) {
+                console.error('Error updating task:', error);
+                alert('Có lỗi xảy ra khi cập nhật công việc!');
+            }
+        };
+
+        onMounted(() => {
+            fetchEmployees();
+            fetchTask();
+        });
+
+        return {
+            task,
+            employees,
+            updateTask,
+            handleFileUpload,
+            removeAttachment
+        };
+    }
+};
+</script>
+
+<style scoped>
+.container {
+    padding: 20px;
+}
+
+.card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.card-header h2 {
+    margin: 0;
+    color: #333;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.form-row {
+    display: flex;
+    margin-right: -15px;
+    margin-left: -15px;
+}
+
+.form-row > .form-group {
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-bottom: 20px;
+}
+
+.col-md-4 {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333;
+}
+
+.form-control {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.attachment-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    margin-bottom: 8px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+.mt-2 {
+    margin-top: 0.5rem;
+}
+</style>

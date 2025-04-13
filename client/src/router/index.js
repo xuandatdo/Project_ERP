@@ -1,8 +1,17 @@
 import { createRouter, createWebHistory } from "vue-router";
-import EmployeeList from "../views/EmployeeList.vue";
-import EmployeeCreate from "../views/EmployeeCreate.vue";
-import EmployeeEdit from "../views/EmployeeEdit.vue";
+import EmployeeList from "../views/Employee/EmployeeList.vue";
+import EmployeeCreate from "../views/Employee/EmployeeCreate.vue";
+import EmployeeEdit from "../views/Employee/EmployeeEdit.vue";
 import Attendance from "../views/Attendance.vue";
+import DepartmentList from "../views/Department/DepartmentList.vue";
+import DepartmentCreate from "../views/Department/DepartmentCreate.vue";
+import DepartmentEdit from "../views/Department/DepartmentEdit.vue";
+import PositionList from "../views/Position/PositionList.vue";
+import PositionCreate from "../views/Position/PositionCreate.vue";
+import PositionEdit from "../views/Position/PositionEdit.vue";
+import TaskList from "../views/Task/TaskList.vue";
+import TaskCreate from "../views/Task/TaskCreate.vue";
+import TaskEdit from "../views/Task/TaskEdit.vue";
 
 const routes = [
   { path: "/", component: EmployeeList },
@@ -13,21 +22,18 @@ const routes = [
     name: "Attendance",
     component: Attendance, // Chấm công
   },
-  //   {
-  //     path: "/payroll",
-  //     name: "Payroll",
-  //     component: () => import("../components/Payroll.vue"), // Tính lương
-  //   },
-  //   {
-  //     path: "/tasks",
-  //     name: "Tasks",
-  //     component: () => import("../components/Tasks.vue"), // Công việc
-  //   },
-  //   {
-  //     path: "/statistics",
-  //     name: "Statistics",
-  //     component: () => import("../components/Statistics.vue"), // Thống kê
-  //   },
+  // Routes cho Department
+  { path: "/departments", component: DepartmentList },
+  { path: "/departments/create", component: DepartmentCreate },
+  { path: "/departments/:id/edit", component: DepartmentEdit },
+  // Routes cho Position
+  { path: "/positions", component: PositionList },
+  { path: "/positions/create", component: PositionCreate },
+  { path: "/positions/:id/edit", component: PositionEdit },
+  // Routes cho Task
+  { path: "/tasks", component: TaskList },
+  { path: "/tasks/create", component: TaskCreate },
+  { path: "/tasks/:id/edit", component: TaskEdit },
 ];
 
 const router = createRouter({

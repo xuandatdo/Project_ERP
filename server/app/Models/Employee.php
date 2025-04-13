@@ -20,8 +20,10 @@ class Employee extends Model
         'work_experience',
         'education_level',
         'gender',
-        'position',
-        'department',
+        'department_id',
+        'position_id',
+        'department_name',
+        'position_name',
         'workplace',
         'start_date',
         'end_date',
@@ -36,5 +38,17 @@ class Employee extends Model
     public function attendanceRecords()
     {
         return $this->hasMany(AttendanceRecord::class);
+    }
+    
+    // Quan hệ nhiều-một với Department
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+    
+    // Quan hệ nhiều-một với Position
+    public function position()
+    {
+        return $this->belongsTo(Position::class);
     }
 }
