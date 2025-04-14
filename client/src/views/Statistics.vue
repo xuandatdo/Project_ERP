@@ -2,8 +2,7 @@
     <div class="container">
         <div class="search-wrapper">
             <div class="search-container">
-                <input v-model="searchQuery" type="text" placeholder="Tìm kiếm theo ID, tên"
-                    class="search-input">
+                <input v-model="searchQuery" type="text" placeholder="Tìm kiếm theo ID, tên" class="search-input">
             </div>
         </div>
 
@@ -24,21 +23,17 @@
                         <td>{{ "NV" + employee.id }}</td>
                         <td>{{ employee.name }}</td>
                         <td>
-                            <vue-cal
-                                :events="formatCalendarData(employee.calendar_data)"
-                                :disable-views="['years', 'months']"
-                                default-view="month"
-                                :time="false"
-                                :transitions="false"
-                                style="height: 250px;"
-                                class="compact-calendar"
-                            />
+                            <vue-cal :events="formatCalendarData(employee.calendar_data)"
+                                :disable-views="['years', 'months']" default-view="month" :time="false"
+                                :transitions="false" style="height: 250px;" class="compact-calendar" />
                         </td>
                         <td>
-                            <span class="absence-count absence-with-permission">{{ employee.total_absent_with_permission }}</span>
+                            <span class="absence-count absence-with-permission">{{ employee.total_absent_with_permission
+                            }}</span>
                         </td>
                         <td>
-                            <span class="absence-count absence-without-permission">{{ employee.total_absent_without_permission }}</span>
+                            <span class="absence-count absence-without-permission">{{
+                                employee.total_absent_without_permission }}</span>
                         </td>
                         <td>
                             <span class="absence-count total-absence">{{ employee.total_absent_days }}</span>
@@ -181,8 +176,8 @@ export default {
 <style scoped>
 /* Base Styles */
 .container {
-    max-width: 100%;
-    margin: 0 auto;
+    max-width: 80%;
+    /* margin: 0 auto; */
     padding: 1rem;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #333;
@@ -344,12 +339,12 @@ export default {
     .container {
         padding: 1.5rem;
     }
-    
+
     .search-wrapper {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .search-container {
         max-width: 100%;
     }
@@ -357,8 +352,15 @@ export default {
 
 /* Animation for smoother transitions */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .employee-table tr {
@@ -371,12 +373,16 @@ export default {
 
 .employee-table th:nth-child(3),
 .employee-table td:nth-child(3) {
-    min-width: 500px; /* More space for calendar */
+    min-width: 500px;
+    /* More space for calendar */
 }
 
-.employee-table th:nth-child(4), /* With permission */
-.employee-table th:nth-child(5), /* Without permission */
-.employee-table th:nth-child(6) { /* Total */
+.employee-table th:nth-child(4),
+/* With permission */
+.employee-table th:nth-child(5),
+/* Without permission */
+.employee-table th:nth-child(6) {
+    /* Total */
     width: 80px;
     min-width: 80px;
 }
@@ -400,20 +406,25 @@ export default {
 
 /* Color coding for different absence types */
 .absence-with-permission {
-    color: #38a169; /* Green for permitted absence */
+    color: #38a169;
+    /* Green for permitted absence */
 }
 
 .absence-without-permission {
-    color: #e53e3e; /* Red for unpermitted absence */
+    color: #e53e3e;
+    /* Red for unpermitted absence */
 }
 
 .total-absence {
-    color: #2b6cb0; /* Blue for total */
+    color: #2b6cb0;
+    /* Blue for total */
     font-weight: 700;
 }
+
 .vuecal {
     height: 200px !important;
 }
+
 /* Hide time-related elements in calendar */
 .vuecal__event-time {
     display: none !important;
@@ -435,7 +446,8 @@ export default {
 
 .vue-cal {
     border: none !important;
-    font-size: 12px !important; /* Smaller base font size */
+    font-size: 12px !important;
+    /* Smaller base font size */
 }
 
 /* Weekday headings */
@@ -450,7 +462,8 @@ export default {
 
 /* Day cells */
 .vuecal__cell {
-    height: 32px !important; /* Reduced from default */
+    height: 32px !important;
+    /* Reduced from default */
     min-height: 32px !important;
     padding: 5 !important;
 }
@@ -490,19 +503,21 @@ export default {
 
 /* Event title styling */
 .vuecal__event-title {
-    display: none; /* Hide text, we'll just use background color */
+    display: none;
+    /* Hide text, we'll just use background color */
 }
 
 /* Color coding for absent days */
 .absent-day {
-    background-color: #ffebee !important; /* Light red background */
+    background-color: #ffebee !important;
+    /* Light red background */
     border-left: 2px solid #f44336 !important;
 }
 
 /* Hover effect for events */
 .vuecal__event:hover {
     z-index: 1;
-    box-shadow: 0 0 5px rgba(0,0,0,0.2);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 }
 
 /* Show full count on hover */

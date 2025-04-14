@@ -57,7 +57,8 @@
                     </div>
                     <div class="form-group">
                         <label for="work_hours">Thời gian làm việc <span class="required">*</span></label>
-                        <input v-model="form.work_hours" id="work_hours" type="text" placeholder="Ví dụ: 8h/ngày" required />
+                        <input v-model="form.work_hours" id="work_hours" type="text" placeholder="Ví dụ: 8h/ngày"
+                            required />
                         <span v-if="errors.work_hours" class="error">{{ errors.work_hours }}</span>
                     </div>
                 </div>
@@ -78,12 +79,14 @@
                     </div>
                     <div class="form-group">
                         <label for="work_experience">Kinh nghiệm làm việc <span class="required">*</span></label>
-                        <input v-model="form.work_experience" id="work_experience" type="text" placeholder="Ví dụ: 2 năm" required />
+                        <input v-model="form.work_experience" id="work_experience" type="text"
+                            placeholder="Ví dụ: 2 năm" required />
                         <span v-if="errors.work_experience" class="error">{{ errors.work_experience }}</span>
                     </div>
                     <div class="form-group">
                         <label for="supervisor">Người phụ trách <span class="required">*</span></label>
-                        <input v-model="form.supervisor" id="supervisor" type="text" placeholder="Nhập tên người phụ trách" required />
+                        <input v-model="form.supervisor" id="supervisor" type="text"
+                            placeholder="Nhập tên người phụ trách" required />
                         <span v-if="errors.supervisor" class="error">{{ errors.supervisor }}</span>
                     </div>
                 </div>
@@ -108,27 +111,28 @@
                     </div>
                     <div class="form-group">
                         <label for="workplace">Địa điểm làm việc <span class="required">*</span></label>
-                        <input v-model="form.workplace" id="workplace" type="text" placeholder="Nhập địa điểm" required />
+                        <input v-model="form.workplace" id="workplace" type="text" placeholder="Nhập địa điểm"
+                            required />
                         <span v-if="errors.workplace" class="error">{{ errors.workplace }}</span>
                     </div>
                 </div>
 
-                <!-- Hàng 6: Email, Ngày sinh, Địa chỉ (Duplicate of row 2) -->
+                <!-- Hàng 6: Ngày bắt đầu, Ngày kết thúc, Kết thúc thử việc -->
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="email2">Email <span class="required">*</span></label>
-                        <input v-model="form.email" id="email2" type="email" placeholder="Nhập email" required />
-                        <span v-if="errors.email" class="error">{{ errors.email }}</span>
+                        <label for="start_date">Ngày bắt đầu <span class="required">*</span></label>
+                        <input v-model="form.start_date" id="start_date" type="date" required />
+                        <span v-if="errors.start_date" class="error">{{ errors.start_date }}</span>
                     </div>
                     <div class="form-group">
-                        <label for="birth_date2">Ngày sinh <span class="required">*</span></label>
-                        <input v-model="form.birth_date" id="birth_date2" type="date" required />
-                        <span v-if="errors.birth_date" class="error">{{ errors.birth_date }}</span>
+                        <label for="end_date">Ngày kết thúc</label>
+                        <input v-model="form.end_date" id="end_date" type="date" />
+                        <span v-if="errors.end_date" class="error">{{ errors.end_date }}</span>
                     </div>
                     <div class="form-group">
-                        <label for="address2">Địa chỉ <span class="required">*</span></label>
-                        <input v-model="form.address" id="address2" type="text" placeholder="Nhập địa chỉ" required />
-                        <span v-if="errors.address" class="error">{{ errors.address }}</span>
+                        <label for="probation_end">Kết thúc thử việc</label>
+                        <input v-model="form.probation_end" id="probation_end" type="date" />
+                        <span v-if="errors.probation_end" class="error">{{ errors.probation_end }}</span>
                     </div>
                 </div>
 
@@ -229,7 +233,7 @@ export default {
             try {
                 const response = await axios.get(`/api/positions/department/${this.form.department_id}`);
                 this.positions = response.data;
-                
+
                 // Lưu tên phòng ban
                 const selectedDept = this.departments.find(dept => dept.id === this.form.department_id);
                 if (selectedDept) {
