@@ -1,13 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Artisan;
-
-Route::get('/', function () {
-    return view('welcome');
-});
+// use Illuminate\Support\Facades\Artisan;
 
 Route::get('/linkstorage', function () {
-    Artisan::call('storage:link');
-    return 'ok';
+    //  Artisan::call('storage:link');
+    \Illuminate\Support\Facades\Artisan::call('storage:link');
+    echo 'ok';
 });

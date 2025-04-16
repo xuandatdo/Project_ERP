@@ -29,7 +29,7 @@
                         </td>
                         <td>
                             <span class="absence-count absence-with-permission">{{ employee.total_absent_with_permission
-                            }}</span>
+                                }}</span>
                         </td>
                         <td>
                             <span class="absence-count absence-without-permission">{{
@@ -232,7 +232,7 @@ export default {
 .employee-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 1500px;
+    min-width: 1000px;
 }
 
 .employee-table th,

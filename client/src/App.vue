@@ -1,5 +1,8 @@
 <template>
-  <div class="dashboard">
+  <div v-if="$route.path === '/login'">
+    <router-view></router-view>
+  </div>
+  <div v-else class="dashboard">
     <!-- Sidebar -->
     <div class="sidebar">
       <div class="menu">
@@ -12,7 +15,7 @@
         </div>
 
         <div class="sub-menu" v-show="subMenuOpen">
-          <router-link to="/" class="sub-menu-item">Nhân sự</router-link>
+          <router-link to="/employees" class="sub-menu-item">Nhân sự</router-link>
           <router-link to="/departments" class="sub-menu-item">Phòng ban</router-link>
           <router-link to="/positions" class="sub-menu-item">Vị trí</router-link>
           <router-link to="/attendance" class="sub-menu-item">Chấm công</router-link>
@@ -21,7 +24,6 @@
           <router-link to="/statistics" class="sub-menu-item">Thống kê</router-link>
         </div>
       </div>
-
     </div>
 
     <!-- Main Content -->

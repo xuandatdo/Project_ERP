@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <form @submit.prevent="updateEmployee" class="employee-form" enctype="multipart/form-data">
-             <div class="form-grid">
+            <div class="form-grid">
                 <!-- Hàng 1: Ảnh nhân sự và Họ tên -->
                 <div class="form-row">
                     <!-- Ảnh nhân sự -->
@@ -60,7 +60,8 @@
                     </div>
                     <div class="form-group">
                         <label for="work_hours">Thời gian làm việc <span class="required">*</span></label>
-                        <input v-model="form.work_hours" id="work_hours" type="text" placeholder="Ví dụ: 8h/ngày" required />
+                        <input v-model="form.work_hours" id="work_hours" type="text" placeholder="Ví dụ: 8h/ngày"
+                            required />
                         <span v-if="errors.work_hours" class="error">{{ errors.work_hours }}</span>
                     </div>
                 </div>
@@ -81,12 +82,14 @@
                     </div>
                     <div class="form-group">
                         <label for="work_experience">Kinh nghiệm làm việc <span class="required">*</span></label>
-                        <input v-model="form.work_experience" id="work_experience" type="text" placeholder="Ví dụ: 2 năm" required />
+                        <input v-model="form.work_experience" id="work_experience" type="text"
+                            placeholder="Ví dụ: 2 năm" required />
                         <span v-if="errors.work_experience" class="error">{{ errors.work_experience }}</span>
                     </div>
                     <div class="form-group">
                         <label for="supervisor">Người phụ trách <span class="required">*</span></label>
-                        <input v-model="form.supervisor" id="supervisor" type="text" placeholder="Nhập tên người phụ trách" required />
+                        <input v-model="form.supervisor" id="supervisor" type="text"
+                            placeholder="Nhập tên người phụ trách" required />
                         <span v-if="errors.supervisor" class="error">{{ errors.supervisor }}</span>
                     </div>
                 </div>
@@ -111,7 +114,8 @@
                     </div>
                     <div class="form-group">
                         <label for="workplace">Địa điểm làm việc <span class="required">*</span></label>
-                        <input v-model="form.workplace" id="workplace" type="text" placeholder="Nhập địa điểm" required />
+                        <input v-model="form.workplace" id="workplace" type="text" placeholder="Nhập địa điểm"
+                            required />
                         <span v-if="errors.workplace" class="error">{{ errors.workplace }}</span>
                     </div>
                 </div>
@@ -202,7 +206,7 @@ export default {
             },
             errors: {},
             newImage: null, // Để lưu file ảnh mới nếu người dùng upload
-            baseUrl: import.meta.env.VITE_API_URL || 'http://localhost:8000', // Thêm baseUrl cho API
+            baseUrl: import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/', // Thêm baseUrl cho API
             departments: [],
             positions: []
         };
@@ -233,7 +237,7 @@ export default {
             try {
                 const response = await axios.get(`${this.baseUrl}/api/positions/department/${this.form.department_id}`);
                 this.positions = response.data;
-                
+
                 // Lưu tên phòng ban
                 const selectedDept = this.departments.find(dept => dept.id === this.form.department_id);
                 if (selectedDept) {
@@ -248,7 +252,7 @@ export default {
             try {
                 const response = await axios.get(`${this.baseUrl}/api/employees/${this.$route.params.id}`);
                 this.form = response.data;
-                
+
                 // Sau khi lấy thông tin nhân viên, tải danh sách vị trí theo phòng ban
                 if (this.form.department_id) {
                     await this.loadPositions();

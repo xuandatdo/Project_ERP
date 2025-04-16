@@ -19,7 +19,7 @@
                         <th>Số điện thoại</th>
                         <th>Phòng ban</th>
                         <th>Vị trí</th>
-                        <th>Trình độ</th> 
+                        <th>Trình độ</th>
                         <th>Ngày bắt đầu</th>
                         <th>Hợp đồng</th>
                         <th>Hành động</th>
@@ -29,7 +29,8 @@
                     <tr v-for="employee in paginatedEmployees" :key="employee.id">
                         <td>{{ "NV" + employee.id }}</td>
                         <td>
-                            <img v-if="employee.profile_image" :src="'/storage/' + employee.profile_image" alt="Profile"
+                            <img v-if="employee.profile_image"
+                                :src="'http://127.0.0.1:8000/storage/' + employee.profile_image" alt="Profile"
                                 class="profile-img">
                             <span v-else>Không có ảnh</span>
                         </td>
@@ -87,16 +88,18 @@ export default {
             return this.employees.filter(employee => {
                 const employeeId = `nv${employee.id}`.toLowerCase();
                 const employeeName = employee.name.toLowerCase();
-                const employeeDepartment = employee.department.toLowerCase();
-                const employeePosition = employee.position.toLowerCase();
-                const employeeEducationLevel = employee.education_level.toLowerCase(); // Thêm tìm kiếm theo Trình độ
+                const employeeDepartment = employee.department_name.toLowerCase();
+                const employeePosition = employee.position_name.toLowerCase();
+                const employeeEducationLevel = employee.education_level.toLowerCase();
+                const employeeSalaryType = employee.salary_type.toLowerCase();
 
                 return (
                     employeeId.includes(query) ||
                     employeeName.includes(query) ||
                     employeeDepartment.includes(query) ||
                     employeePosition.includes(query) ||
-                    employeeEducationLevel.includes(query) // Tìm kiếm theo Trình độ
+                    employeeEducationLevel.includes(query) ||
+                    employeeSalaryType.includes(query)
                 );
             });
         },
@@ -276,8 +279,9 @@ export default {
     color: #333;
     margin-right: 10px;
 }
+
 .btn-edit:hover {
-    background-color: #e0a800; 
+    background-color: #e0a800;
 }
 
 .btn-delete {
