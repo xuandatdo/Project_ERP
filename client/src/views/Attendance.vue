@@ -114,9 +114,14 @@
 
 <script>
 import axios from 'axios';
+import { useToast } from "vue-toastification";
 
 export default {
   name: 'Attendance',
+  setup() {
+    const toast = useToast(); // Access the toast instance
+    return { toast };
+  },
   data() {
     return {
       selectedDate: new Date().toISOString().split('T')[0],
@@ -151,7 +156,7 @@ export default {
         this.employees = response.data;
       } catch (error) {
         console.error('Error fetching attendance:', error);
-        this.$toast.error('Failed to load attendance data');
+        this.toast.error('Failed to load attendance data'); // Use this.toast
       } finally {
         this.loading = false;
       }
@@ -177,7 +182,7 @@ export default {
           employee.status = 'late';
         }
 
-      this.$toast.success(`Status updated for ${employee.name}`);
+      this.toast.success(`Status updated for ${employee.name}`);
     },
     async saveAttendance() {
       this.saving = true;
@@ -194,10 +199,10 @@ export default {
 
         await axios.post('/api/attendance', { attendance: attendanceData });
 
-        this.$toast.success('Attendance saved successfully');
+        this.toast.success('Attendance saved successfully');
       } catch (error) {
         console.error('Error saving attendance:', error);
-        this.$toast.error('Failed to save attendance');
+        this.toast.error('Failed to save attendance');
       } finally {
         this.saving = false;
       }

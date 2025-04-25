@@ -9,6 +9,8 @@ import {
   faChevronRight,
   faChevronLeft,
 } from "@fortawesome/free-solid-svg-icons";
+import Toast from 'vue-toastification';
+import 'vue-toastification/dist/index.css';
 
 library.add(faChevronDown, faChevronRight, faChevronLeft);
 
@@ -16,5 +18,5 @@ const app = createApp(App);
 app.use(router);
 
 app.component("font-awesome-icon", FontAwesomeIcon);
-
+app.use(Toast);
 app.mount("#app");
