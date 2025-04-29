@@ -6,6 +6,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TransportPlanController;
 
 Route::resource('employees', EmployeeController::class)->except(['create', 'edit']);
 // Route::post('/employees', [EmployeeController::class, 'store']);
@@ -25,3 +26,5 @@ Route::delete('/task-attachments/{id}', [TaskController::class, 'deleteAttachmen
 
 //Route cho Statistics
 Route::get('/statistics', [AttendanceController::class, 'getEmployeeStatistics']);
+
+Route::apiResource('transport-plans', TransportPlanController::class);

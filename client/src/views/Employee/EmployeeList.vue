@@ -44,7 +44,7 @@
                         <td>{{ truncate(employee.salary_type, 15) }}</td>
                         <td>
                             <router-link :to="'/edit/' + employee.id" class="btn btn-edit">Sửa</router-link>
-                            <button @click="deleteEmployee(employee.id)" class="btn btn-delete">Xóa</button>
+                            <button @click="confirmDelete(employee)" class="btn btn-delete">Xóa</button>
                         </td>
                     </tr>
                 </tbody>
@@ -60,6 +60,23 @@
                 Trang sau
             </button>
         </div>
+
+        <!-- Modal xác nhận xóa -->
+        <div class="modal" v-if="showDeleteModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Xác nhận xóa</h2>
+                    <span class="close" @click="showDeleteModal = false">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa nhân viên?</p>
+                </div>
+                <div class="modal-footer">
+                    <button @click="showDeleteModal = false" class="btn btn-secondary">Hủy</button>
+                    <button @click="deleteEmployee" class="btn btn-danger">Xóa</button>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -72,7 +89,9 @@ export default {
             employees: [],
             currentPage: 1,
             itemsPerPage: 5, // Giới hạn 5 thông tin mỗi trang
-            searchQuery: ''
+            searchQuery: '',
+            showDeleteModal: false,
+            employeeToDelete: null
         };
     },
     mounted() {
@@ -126,14 +145,22 @@ export default {
                 console.error('Error fetching employees:', error);
             }
         },
-        async deleteEmployee(id) {
-            if (confirm('Bạn có chắc muốn xóa nhân viên này?')) {
-                try {
-                    await axios.delete(`/api/employees/${id}`);
-                    this.fetchEmployees();
-                } catch (error) {
-                    console.error('Error deleting employee:', error);
-                }
+        confirmDelete(employee) {
+            this.employeeToDelete = employee;
+            this.showDeleteModal = true;
+        },
+
+        async deleteEmployee() {
+            if (!this.employeeToDelete) return;
+            
+            try {
+                await axios.delete(`/api/employees/${this.employeeToDelete.id}`);
+                this.fetchEmployees();
+                this.showDeleteModal = false;
+                this.employeeToDelete = null;
+            } catch (error) {
+                console.error('Error deleting employee:', error);
+                this.showDeleteModal = false;
             }
         },
         truncate(text, maxLength) {
@@ -316,5 +343,110 @@ export default {
 span {
     font-size: 16px;
     margin: 0 10px;
+}
+
+/* Modal styles */
+.modal {
+    display: block;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 5px;
+    width: 400px;
+    position: relative;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.close {
+    font-size: 28px;
+    font-weight: bold;
+    color: #666;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #000;
+}
+
+.modal-body {
+    margin-bottom: 20px;
+}
+
+.modal-body p {
+    margin: 0;
+    font-size: 1rem;
+    color: #555;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid #ddd;
+    padding-top: 15px;
+}
+
+.modal-footer button {
+    padding: 8px 20px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
 }
 </style>

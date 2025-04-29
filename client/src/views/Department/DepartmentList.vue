@@ -45,7 +45,7 @@
                     <span class="close" @click="showDeleteModal = false">&times;</span>
                 </div>
                 <div class="modal-body">
-                    <p>Bạn có chắc chắn muốn xóa phòng ban "{{ departmentToDelete?.name }}"?</p>
+                    <p>Bạn có chắc chắn muốn xóa phòng ban?</p>
                     <p class="warning" v-if="departmentToDelete?.positions && departmentToDelete.positions.length > 0">
                         Cảnh báo: Phòng ban này có {{ departmentToDelete.positions.length }} vị trí. Xóa phòng ban sẽ xóa tất cả vị trí liên quan.
                     </p>

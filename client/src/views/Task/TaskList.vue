@@ -5,10 +5,6 @@
             <router-link to="/tasks/create" class="btn btn-primary">Thêm công việc mới</router-link>
         </div>
 
-        <div class="alert alert-info" v-if="message">
-            {{ message }}
-        </div>
-
         <div class="table-responsive" style="overflow-x: auto;">
             <table class="table table-bordered">
                 <thead>
@@ -39,7 +35,7 @@
                         <td>
                             <div class="action-buttons">
                                 <router-link :to="`/tasks/${task.id}/edit`" class="btn btn-sm btn-edit btn-primary">Sửa</router-link>
-                                <button @click="deleteTask(task.id)" class="btn btn-sm btn-delete btn-danger">Xóa</button>
+                                <button @click="confirmDelete(task)" class="btn btn-sm btn-delete btn-danger">Xóa</button>
                             </div>
                         </td>
                     </tr>
@@ -56,6 +52,23 @@
                 Trang sau
             </button>
         </div>
+
+        <!-- Modal xác nhận xóa -->
+        <div class="modal" v-if="showDeleteModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Xác nhận xóa</h2>
+                    <span class="close" @click="showDeleteModal = false">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa công việc?</p>
+                </div>
+                <div class="modal-footer">
+                    <button @click="showDeleteModal = false" class="btn btn-secondary">Hủy</button>
+                    <button @click="deleteTask" class="btn btn-danger">Xóa</button>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -70,6 +83,8 @@ export default {
         const currentPage = ref(1);
         const totalPages = ref(1);
         const itemsPerPage = 10;
+        const showDeleteModal = ref(false);
+        const taskToDelete = ref(null);
 
         const fetchTasks = async (page) => {
             try {
@@ -82,16 +97,28 @@ export default {
             }
         };
 
-        const deleteTask = async (id) => {
-            if (confirm('Bạn có chắc chắn muốn xóa công việc này?')) {
-                try {
-                    await axios.delete(`/api/tasks/${id}`);
-                    message.value = 'Xóa công việc thành công';
-                    fetchTasks(currentPage.value);
-                } catch (error) {
-                    console.error('Error deleting task:', error);
+        const confirmDelete = (task) => {
+            taskToDelete.value = task;
+            showDeleteModal.value = true;
+        };
+
+        const deleteTask = async () => {
+            if (!taskToDelete.value) return;
+            
+            try {
+                await axios.delete(`/api/tasks/${taskToDelete.value.id}`);
+                message.value = `Đã xóa công việc "${taskToDelete.value.name}" thành công`;
+                fetchTasks(currentPage.value);
+                showDeleteModal.value = false;
+                taskToDelete.value = null;
+            } catch (error) {
+                console.error('Error deleting task:', error);
+                if (error.response && error.response.data && error.response.data.message) {
+                    message.value = error.response.data.message;
+                } else {
                     message.value = 'Có lỗi xảy ra khi xóa công việc';
                 }
+                showDeleteModal.value = false;
             }
         };
 
@@ -153,7 +180,10 @@ export default {
             getProgressClass,
             getStatusClass,
             prevPage,
-            nextPage
+            nextPage,
+            showDeleteModal,
+            taskToDelete,
+            confirmDelete
         };
     }
 };
@@ -241,5 +271,104 @@ export default {
     align-items: center;
     gap: 16px;
     margin-top: 20px;
+}
+
+/* Modal styles */
+.modal {
+    display: block;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 5px;
+    width: 400px;
+    position: relative;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.close {
+    font-size: 28px;
+    font-weight: bold;
+    color: #666;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #000;
+}
+
+.modal-body {
+    margin-bottom: 20px;
+}
+
+.modal-body p {
+    margin: 0;
+    font-size: 1rem;
+    color: #555;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid #ddd;
+    padding-top: 15px;
+}
+
+.modal-footer button {
+    padding: 8px 20px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
 }
 </style>

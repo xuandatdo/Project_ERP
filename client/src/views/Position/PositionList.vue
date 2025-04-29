@@ -60,7 +60,7 @@
                     <span class="close" @click="showDeleteModal = false">&times;</span>
                 </div>
                 <div class="modal-body">
-                    <p>Bạn có chắc chắn muốn xóa vị trí "{{ positionToDelete?.name }}"?</p>
+                    <p>Bạn có chắc chắn muốn xóa vị trí?</p>
                 </div>
                 <div class="modal-footer">
                     <button @click="showDeleteModal = false" class="btn btn-secondary">Hủy</button>
@@ -163,6 +163,10 @@ export default {
             this.positionToDelete = position;
             this.showDeleteModal = true;
         },
+        confirmDelete(position) {
+            this.positionToDelete = position;
+            this.showDeleteModal = true;
+        },
         async deletePosition() {
             if (!this.positionToDelete) return;
             
@@ -173,7 +177,7 @@ export default {
                 this.showDeleteModal = false;
                 this.positionToDelete = null;
             } catch (error) {
-                console.error('Lỗi khi xóa vị trí:', error);
+                console.error('Error deleting position:', error);
                 if (error.response && error.response.data && error.response.data.message) {
                     this.message = error.response.data.message;
                 } else {

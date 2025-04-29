@@ -9,12 +9,13 @@
         <div class="logo">
           <img src="../src/assets/img-logo.png" alt="Logo" />
         </div>
-        <div class="menu-item" @click="toggleSubMenu">
+        <!-- Menu Quản lý nhân sự -->
+        <div class="menu-item" @click="toggleHRMenu">
           <span>Quản lý nhân sự</span>
-          <i :class="subMenuOpen ? 'fas fa-chevron-down' : 'fas fa-chevron-right'"></i>
+          <i :class="hrMenuOpen ? 'fas fa-chevron-down' : 'fas fa-chevron-right'"></i>
         </div>
 
-        <div class="sub-menu" v-show="subMenuOpen">
+        <div class="sub-menu" v-show="hrMenuOpen">
           <router-link to="/employees" class="sub-menu-item">Nhân sự</router-link>
           <router-link to="/departments" class="sub-menu-item">Phòng ban</router-link>
           <router-link to="/positions" class="sub-menu-item">Vị trí</router-link>
@@ -22,6 +23,20 @@
           <router-link to="/payroll" class="sub-menu-item">Tính lương</router-link>
           <router-link to="/tasks" class="sub-menu-item">Công việc</router-link>
           <router-link to="/statistics" class="sub-menu-item">Thống kê</router-link>
+        </div>
+
+        <!-- Menu Quản lý vận tải -->
+        <div class="menu-item" @click="toggleTransportMenu">
+          <span>Quản lý vận tải</span>
+          <i :class="transportMenuOpen ? 'fas fa-chevron-down' : 'fas fa-chevron-right'"></i>
+        </div>
+
+        <div class="sub-menu" v-show="transportMenuOpen">
+          <router-link to="/data" class="sub-menu-item">Dữ liệu</router-link>
+          <router-link to="/transport" class="sub-menu-item">Kế hoạch vận chuyển</router-link>
+          <router-link to="/units" class="sub-menu-item">Đơn vị vận chuyển</router-link>
+          <router-link to="/partners" class="sub-menu-item">Đối tác vận chuyển</router-link>
+          <router-link to="/vehicles" class="sub-menu-item">Phương tiện vận chuyển</router-link>
         </div>
       </div>
     </div>
@@ -38,12 +53,12 @@
   </div>
 </template>
 
-
 <script>
 export default {
   data() {
     return {
-      subMenuOpen: false,
+      hrMenuOpen: false,
+      transportMenuOpen: false,
     };
   },
   computed: {
@@ -60,13 +75,25 @@ export default {
         case '/payroll': return 'Tính lương';
         case '/tasks': return 'Công việc';
         case '/statistics': return 'Thống kê';
+        case '/data': return 'Dữ liệu vận tải';
+        case '/transport': return 'Kế hoạch vận chuyển';
+        case '/transport/create': return 'Tạo kế hoạch vận chuyển';
+        case '/transport/:id/edit': return 'Sửa kế hoạch vận chuyển';
+        case '/units': return 'Đơn vị vận chuyển';
+        case '/partners': return 'Đối tác vận chuyển';
+        case '/vehicles': return 'Phương tiện vận chuyển';
         default: return 'Quản lý nhân sự';
       }
     },
   },
   methods: {
-    toggleSubMenu() {
-      this.subMenuOpen = !this.subMenuOpen;
+    toggleHRMenu() {
+      this.hrMenuOpen = !this.hrMenuOpen;
+      if (this.hrMenuOpen) this.transportMenuOpen = false;
+    },
+    toggleTransportMenu() {
+      this.transportMenuOpen = !this.transportMenuOpen;
+      if (this.transportMenuOpen) this.hrMenuOpen = false;
     },
   },
 };

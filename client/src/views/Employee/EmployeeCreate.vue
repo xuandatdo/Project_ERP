@@ -125,12 +125,12 @@
                         <span v-if="errors.start_date" class="error">{{ errors.start_date }}</span>
                     </div>
                     <div class="form-group">
-                        <label for="end_date">Ngày kết thúc</label>
+                        <label for="end_date">Ngày kết thúc <span class="required">*</span></label>
                         <input v-model="form.end_date" id="end_date" type="date" />
                         <span v-if="errors.end_date" class="error">{{ errors.end_date }}</span>
                     </div>
                     <div class="form-group">
-                        <label for="probation_end">Kết thúc thử việc</label>
+                        <label for="probation_end">Kết thúc thử việc <span class="required">*</span></label>
                         <input v-model="form.probation_end" id="probation_end" type="date" />
                         <span v-if="errors.probation_end" class="error">{{ errors.probation_end }}</span>
                     </div>
