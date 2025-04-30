@@ -17,6 +17,7 @@ import Login from "../views/Login.vue";
 import TransportPlanList from "../views/TransportPlan/TransportPlanList.vue";
 import TransportPlanCreate from "../views/TransportPlan/TransportPlanCreate.vue";
 import TransportPlanEdit from "../views/TransportPlan/TransportPlanEdit.vue";
+import TransportUnitList from "../views/TransportUnit/TransportUnitList.vue";
 
 const routes = [
   { path: "/", redirect: "/employees" },
@@ -111,6 +112,11 @@ const routes = [
   {
     path: "/transport/:id/edit",
     component: TransportPlanEdit,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/units",
+    component: TransportUnitList,
     meta: { requiresAuth: true },
   },
   {
