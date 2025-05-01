@@ -63,26 +63,55 @@ export default {
   },
   computed: {
     currentPageTitle() {
-      switch (this.$route.path) {
-        case '/': return 'Danh sách nhân sự';
-        case '/create': return 'Thêm nhân viên';
-        case '/edit/:id': return 'Sửa nhân viên';
-        case '/departments': return 'Quản lý phòng ban';
-        case '/departments/create': return 'Thêm phòng ban mới';
-        case '/positions': return 'Quản lý vị trí';
-        case '/positions/create': return 'Thêm vị trí mới';
-        case '/attendance': return 'Chấm công';
-        case '/payroll': return 'Tính lương';
-        case '/tasks': return 'Công việc';
-        case '/statistics': return 'Thống kê';
-        case '/data': return 'Dữ liệu vận tải';
-        case '/transport': return 'Kế hoạch vận chuyển';
-        case '/transport/create': return 'Tạo kế hoạch vận chuyển';
-        case '/transport/:id/edit': return 'Sửa kế hoạch vận chuyển';
-        case '/units': return 'Đơn vị vận chuyển';
-        case '/partners': return 'Đối tác vận chuyển';
-        case '/vehicles': return 'Phương tiện vận chuyển';
-        default: return 'Quản lý nhân sự';
+      const path = this.$route.path;
+
+      switch (true) {
+        case path === '/':
+          return 'Danh sách nhân sự';
+        case path === '/create':
+          return 'Thêm nhân viên';
+        case path.startsWith('/edit/'):
+          return 'Sửa nhân viên';
+        case path === '/departments':
+          return 'Quản lý phòng ban';
+        case path === '/departments/create':
+          return 'Thêm phòng ban mới';
+        case path === '/positions':
+          return 'Quản lý vị trí';
+        case path === '/positions/create':
+          return 'Thêm vị trí mới';
+        case path === '/attendance':
+          return 'Chấm công';
+        case path === '/payroll':
+          return 'Tính lương';
+        case path === '/tasks':
+          return 'Công việc';
+        case path === '/statistics':
+          return 'Thống kê';
+        case path === '/data':
+          return 'Dữ liệu vận tải';
+        case path === '/transport':
+          return 'Kế hoạch vận chuyển';
+        case path === '/transport/create':
+          return 'Tạo kế hoạch vận chuyển';
+        case path.startsWith('/transport/') && path.endsWith('/edit'):
+          return 'Sửa kế hoạch vận chuyển';
+        case path === '/units':
+          return 'Đơn vị vận chuyển';
+        case path === '/partners':
+          return 'Đối tác vận chuyển';
+        case path === '/partners/create':
+          return 'Đối tác vận chuyển';
+        case path.startsWith('/partners/') && path.endsWith('/edit'):
+          return 'Đối tác vận chuyển';
+        case path === '/vehicles':
+          return 'Phương tiện vận chuyển';
+        case path === '/vehicles/create':
+          return 'Phương tiện vận chuyển';
+        case path.startsWith('/vehicles/') && path.endsWith('/edit'):
+          return 'Phương tiện vận chuyển';
+        default:
+          return 'Quản lý nhân sự';
       }
     },
   },

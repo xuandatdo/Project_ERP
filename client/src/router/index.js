@@ -18,6 +18,12 @@ import TransportPlanList from "../views/TransportPlan/TransportPlanList.vue";
 import TransportPlanCreate from "../views/TransportPlan/TransportPlanCreate.vue";
 import TransportPlanEdit from "../views/TransportPlan/TransportPlanEdit.vue";
 import TransportUnitList from "../views/TransportUnit/TransportUnitList.vue";
+import PartnerList from "../views/Partners/PartnerList.vue";
+import PartnerCreate from "../views/Partners/PartnerCreate.vue";
+import PartnerEdit from "../views/Partners/PartnerEdit.vue";
+import VehicleList from "../views/Vehicle/VehicleList.vue";
+import VehicleCreate from "../views/Vehicle/VehicleCreate.vue";
+import VehicleEdit from "../views/Vehicle/VehicleEdit.vue";
 
 const routes = [
   { path: "/", redirect: "/employees" },
@@ -114,11 +120,45 @@ const routes = [
     component: TransportPlanEdit,
     meta: { requiresAuth: true },
   },
+  // Routes cho Unit
   {
     path: "/units",
     component: TransportUnitList,
     meta: { requiresAuth: true },
   },
+  // Routes cho Partner
+  {
+    path: "/partners",
+    component: PartnerList,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/partners/create",
+    component: PartnerCreate,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/partners/:id/edit",
+    component: PartnerEdit,
+    meta: { requiresAuth: true },
+  },
+  // Routes cho Vehicle
+  {
+    path: "/vehicles",
+    component: VehicleList,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/vehicles/create",
+    component: VehicleCreate,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/vehicles/:id/edit",
+    component: VehicleEdit,
+    meta: { requiresAuth: true },
+  },
+  // Routes cho Login
   {
     path: "/login",
     component: Login,
