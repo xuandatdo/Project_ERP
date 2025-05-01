@@ -24,6 +24,7 @@ import PartnerEdit from "../views/Partners/PartnerEdit.vue";
 import VehicleList from "../views/Vehicle/VehicleList.vue";
 import VehicleCreate from "../views/Vehicle/VehicleCreate.vue";
 import VehicleEdit from "../views/Vehicle/VehicleEdit.vue";
+import TransportDataList from "../views/TransportData/TransportDataList.vue";
 
 const routes = [
   { path: "/", redirect: "/employees" },
@@ -156,6 +157,12 @@ const routes = [
   {
     path: "/vehicles/:id/edit",
     component: VehicleEdit,
+    meta: { requiresAuth: true },
+  },
+  // Routes cho Vehicle
+  {
+    path: "/data",
+    component: TransportDataList,
     meta: { requiresAuth: true },
   },
   // Routes cho Login
