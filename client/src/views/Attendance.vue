@@ -89,7 +89,7 @@
                 <input
                   type="text"
                   v-model="employee.note"
-                  placeholder="Ghi chú"
+                  placeholder="Nhập ghi chú"
                   class="form-control"
                 />
               </td>
@@ -153,10 +153,13 @@ export default {
         const response = await axios.get('/api/attendance', {
           params: { date: this.selectedDate }
         });
-        this.employees = response.data;
+        this.employees = response.data.map(employee => ({
+          ...employee,
+          note: employee.note || '' // Ensure note is initialized
+        }));
       } catch (error) {
         console.error('Error fetching attendance:', error);
-        this.toast.error('Failed to load attendance data'); // Use this.toast
+        this.toast.error('Failed to load attendance data');
       } finally {
         this.loading = false;
       }
@@ -164,23 +167,26 @@ export default {
     updateStatus(employee, status, isChecked) {
       if (!isChecked) {
         // Reset all statuses
+        if (status === 'late' && employee.status === 'late') {
+          employee.late_count = Math.max((employee.late_count || 0) - 1, 0); // Decrement late count but ensure it doesn't go below 0
+        }
         employee.status = '';
         return;
       }
-      
-        // Set the selected status
-        if (status === 'present') {
-          employee.status = 'present';
-        } else if (status === 'absent_with_permission') {
-          employee.status = 'absent_with_permission';
-        } else if (status === 'absent_without_permission') {
-          employee.status = 'absent_without_permission';
-        } else if (status === 'late') {
-          if (employee.status !== 'late') {
+
+      // Set the selected status
+      if (status === 'present') {
+        employee.status = 'present';
+      } else if (status === 'absent_with_permission') {
+        employee.status = 'absent_with_permission';
+      } else if (status === 'absent_without_permission') {
+        employee.status = 'absent_without_permission';
+      } else if (status === 'late') {
+        if (employee.status !== 'late') {
           employee.late_count = (employee.late_count || 0) + 1; // Increment late count only if it's the first late check
-          }
-          employee.status = 'late';
         }
+        employee.status = 'late';
+      }
 
       this.toast.success(`Status updated for ${employee.name}`);
     },
@@ -191,13 +197,16 @@ export default {
           employee_id: employee.id,
           attendance_date: this.selectedDate,
           status: employee.status || '',
-          note: employee.note || '',
+          note: employee.note || '', // Include the note in the data
         }));
 
-        // Log the attendance data
-        console.log(attendanceData);
+        // Save the attendance data to the database
+        const response = await axios.post('/api/attendance', { attendance: attendanceData });
 
-        await axios.post('/api/attendance', { attendance: attendanceData });
+        // Update the employees array with the saved data (if the API returns updated data)
+        if (response.data && response.data.attendance) {
+          this.employees = response.data.attendance; // Ensure the latest notes are displayed
+        }
 
         this.toast.success('Attendance saved successfully');
       } catch (error) {
@@ -413,5 +422,9 @@ span.status-not-marked {
   border-radius: 6px;
   width: 100%;
   max-width: 400px;
+}
+
+td input {
+  border: none;
 }
 </style>

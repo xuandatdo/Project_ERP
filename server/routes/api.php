@@ -37,6 +37,7 @@ Route::post('/partners', [PartnerController::class, 'store']);
 Route::get('/partners/{id}', [PartnerController::class, 'show']);
 Route::put('/partners/{id}', [PartnerController::class, 'update']);
 Route::delete('/partners/{id}', [PartnerController::class, 'destroy']);
+Route::get('/partners/check-duplicate', [PartnerController::class, 'checkDuplicate']);
 
 //Route cho Vehicle
 Route::apiResource('vehicles', VehicleController::class);

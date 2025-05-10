@@ -18,6 +18,7 @@
         <div>
           <label>Tải tối đa:</label>
           <input v-model="form.max_load" type="number" />
+          <h6>[ Tải tối đa là 999999 ]</h6>
         </div>
         <div>
           <label>Lịch bảo dưỡng:</label>
@@ -37,12 +38,13 @@ export default {
   data() {
     return {
       form: {
-        partner_code: "", // Updated field name
+        partner_code: "",
         name: "",
         max_load: 0,
         maintenance_date: "",
       },
       partners: [],
+      maxLoadLimit: 999999, // Example maximum load limit
     };
   },
   methods: {
@@ -56,14 +58,33 @@ export default {
         });
     },
     createVehicle() {
-      console.log("Payload:", this.form); // Log the payload for debugging
+      // Validation for max_load
+      if (this.form.max_load < 0) {
+        this.toast.error("Tải tối đa không được là số âm");
+        return;
+      }
+      if (this.form.max_load > this.maxLoadLimit) {
+        this.toast.error("Số tải vượt mức cho phép");
+        return;
+      }
+
+      // Validation for name
+      const nameRegex = /^[a-zA-Z0-9\s]+$/;
+      if (this.form.name.length > 50) {
+        this.toast.error("Tên phương tiện không được vượt quá 50 ký tự");
+        return;
+      }
+      if (!nameRegex.test(this.form.name)) {
+        this.toast.error("Tên phương tiện không được chứa ký tự đặc biệt");
+        return;
+      }
+
       axios.post("/api/vehicles", this.form)
         .then(() => {
           this.toast.success("Thêm phương tiện thành công!");
           this.$router.push("/vehicles");
         })
         .catch((error) => {
-          console.error("Error:", error.response?.data); // Log the error response
           this.toast.error(error.response?.data?.message || "Thêm phương tiện thất bại!");
         });
     },

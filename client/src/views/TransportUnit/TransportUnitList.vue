@@ -39,6 +39,13 @@
         </div>
       </div>
     </div>
+
+    <!-- Pagination Controls -->
+    <div class="pagination">
+      <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">Previous</button>
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages">Next</button>
+    </div>
   </div>
 </template>
 
@@ -54,7 +61,9 @@ export default {
         dateOption: 'today',
         date: '',
         shift: '' // This will hold S1, S2, C1, or C2
-      }
+      },
+      currentPage: 1, // Track the current page
+      itemsPerPage: 10 // Number of items per page
     };
   },
   computed: {
@@ -65,35 +74,44 @@ export default {
         completed: [],
         delayed: []
       };
-      this.filteredPlans.forEach(plan => {
+      this.paginatedPlans.forEach(plan => {
         groups[plan.status]?.push(plan);
       });
       return groups;
     },
     filteredPlans() {
-    const search = this.filters.search.toLowerCase();
+      const search = this.filters.search.toLowerCase();
 
-    return this.transportPlans.filter(plan => {
-        const matchesSearch = !search ||
-        (plan.code && plan.code.toLowerCase().includes(search)) ||
-        (plan.id && String(plan.id).toLowerCase().includes(search)) ||
-        (plan.license_plate && plan.license_plate.toLowerCase().includes(search));
+      return this.transportPlans.filter(plan => {
+        const matchesSearch =
+          !search ||
+          (plan.code && plan.code.toLowerCase().includes(search)) ||
+          (plan.id && String(plan.id).toLowerCase().includes(search)) ||
+          (plan.license_plate && plan.license_plate.toLowerCase().includes(search));
 
         const statusMap = {
-        S1: 'preparing',
-        S2: 'in_transit',
-        C1: 'completed',
-        C2: 'delayed'
+          S1: 'preparing',
+          S2: 'in_transit',
+          C1: 'completed',
+          C2: 'delayed'
         };
         const selectedStatus = statusMap[this.filters.shift] || null;
         const planDate = new Date(plan.expected_time).toISOString().split('T')[0];
 
         return (
-        matchesSearch &&
-        (!selectedStatus || plan.status === selectedStatus) &&
-        (this.filters.dateOption !== 'custom' || planDate === this.filters.date)
+          matchesSearch &&
+          (!selectedStatus || plan.status === selectedStatus) &&
+          (this.filters.dateOption !== 'custom' || planDate === this.filters.date)
         );
-    });
+      });
+    },
+    paginatedPlans() {
+      const start = (this.currentPage - 1) * this.itemsPerPage;
+      const end = start + this.itemsPerPage;
+      return this.filteredPlans.slice(start, end);
+    },
+    totalPages() {
+      return Math.ceil(this.filteredPlans.length / this.itemsPerPage);
     },
     total() {
       return this.transportPlans.length;
@@ -137,6 +155,11 @@ export default {
         this.transportPlans = response.data.data;
       } catch (error) {
         console.error('Error fetching transport plans:', error);
+      }
+    },
+    changePage(page) {
+      if (page > 0 && page <= this.totalPages) {
+        this.currentPage = page;
       }
     }
   },
@@ -233,5 +256,26 @@ export default {
 .plan-card strong {
   font-weight: bold;
   color: #333; /* Darker text for emphasis */
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.pagination button {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  background: #f9f9f9;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.pagination button:disabled {
+  background: #eee;
+  cursor: not-allowed;
 }
 </style>

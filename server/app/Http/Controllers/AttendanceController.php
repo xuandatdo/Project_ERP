@@ -27,6 +27,7 @@ class AttendanceController extends Controller
                 'name' => $employee->name,
                 'status' => $attendance ? $attendance->status : null,
                 'late_count' => $attendance ? $attendance->late_count : 0, // Include late_count
+                'note' => $attendance ? $attendance->note : '', // Include note
             ];
         });
 

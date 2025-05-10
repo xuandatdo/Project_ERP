@@ -14,15 +14,17 @@ class PartnerController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'code' => 'required|string|max:50',
-            'name' => 'required|string|max:100',
-            'total_orders' => 'nullable|integer',
-            'total_amount' => 'nullable|numeric',
+        $request->validate([
+            'code' => 'required|unique:partners,code',
+            'name' => 'required',
+            'total_orders' => 'nullable|integer|min:0',
+            'total_amount' => 'nullable|numeric|min:0',
         ]);
 
-        $partner = Partner::create($validated);
-        return response()->json($partner, 201);
+        // Proceed with storing the partner
+        Partner::create($request->all());
+
+        return response()->json(['message' => 'Partner created successfully!'], 201);
     }
 
     public function show($id)
@@ -33,17 +35,18 @@ class PartnerController extends Controller
 
     public function update(Request $request, $id)
     {
-        $partner = Partner::findOrFail($id);
-
-        $validated = $request->validate([
-            'code' => 'required|string|max:50',
-            'name' => 'required|string|max:100',
-            'total_orders' => 'nullable|integer',
-            'total_amount' => 'nullable|numeric',
+        $request->validate([
+            'code' => 'required|unique:partners,code,' . $id,
+            'name' => 'required',
+            'total_orders' => 'nullable|integer|min:0',
+            'total_amount' => 'nullable|numeric|min:0',
         ]);
 
-        $partner->update($validated);
-        return response()->json($partner);
+        // Proceed with updating the partner
+        $partner = Partner::findOrFail($id);
+        $partner->update($request->all());
+
+        return response()->json(['message' => 'Partner updated successfully!']);
     }
 
     public function destroy($id)
@@ -51,5 +54,15 @@ class PartnerController extends Controller
         $partner = Partner::findOrFail($id);
         $partner->delete();
         return response()->json(['message' => 'Partner deleted successfully']);
+    }
+
+    public function checkDuplicate(Request $request)
+    {
+        $code = $request->query('code');
+
+        // Check if the code exists in the database
+        $exists = \App\Models\Partner::where('code', $code)->exists();
+
+        return response()->json(['exists' => $exists]);
     }
 }

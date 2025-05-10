@@ -49,15 +49,49 @@
           this.toast.error(error.response?.data?.message || "Không thể tải thông tin đối tác!");
         });
       },
-      updatePartner() {
+      checkDuplicateCode() {
+        return axios.get(`/api/partners/check-duplicate`, { params: { code: this.form.code } })
+          .then((response) => {
+            return response.data.exists; // Return true if the code exists
+          })
+          .catch(() => {
+            return false; // Return false to indicate no duplicate check was performed
+          });
+      },
+      async updatePartner() {
+        // Validation for negative values
+        if (this.form.total_orders < 0) {
+          this.toast.error("Tổng số đơn không được là số âm!");
+          return;
+        }
+        if (this.form.total_amount < 0) {
+          this.toast.error("Tổng số tiền không được là số âm!");
+          return;
+        }
+
+        // Validation for special characters in name
+        const nameRegex = /^[a-zA-Z0-9\s]+$/;
+        if (!nameRegex.test(this.form.name)) {
+          this.toast.error("Tên đối tác không được chứa ký tự đặc biệt!");
+          return;
+        }
+
+        // Check for duplicate code
+        const isDuplicate = await this.checkDuplicateCode();
+        if (isDuplicate) {
+          this.toast.error("Mã đối tác đã tồn tại!");
+          return;
+        }
+
+        // Proceed with the update
         axios.put(`/api/partners/${this.$route.params.id}`, this.form)
-        .then(() => {
-          this.toast.success("Cập nhật đối tác thành công!");
-          this.$router.push("/partners");
-        })
-        .catch((error) => {
-          this.toast.error(error.response?.data?.message || "Cập nhật đối tác thất bại!");
-        });
+          .then(() => {
+            this.toast.success("Cập nhật đối tác thành công!");
+            this.$router.push("/partners");
+          })
+          .catch((error) => {
+            this.toast.error(error.response?.data?.message || "Cập nhật đối tác thất bại!");
+          });
       },
     },
     mounted() {

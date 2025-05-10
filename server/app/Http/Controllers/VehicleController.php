@@ -35,7 +35,13 @@ class VehicleController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $vehicle = Vehicle::with('partner')->find($id);
+
+        if (!$vehicle) {
+            return response()->json(['message' => 'Vehicle not found'], 404);
+        }
+
+        return response()->json($vehicle);
     }
 
     public function update(Request $request, Vehicle $vehicle)

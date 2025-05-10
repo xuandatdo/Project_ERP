@@ -1,33 +1,34 @@
 <template>
-    <div>
-      <h1>Chỉnh sửa phương tiện</h1>
-      <form @submit.prevent="updateVehicle">
-        <div>
-          <label>Mã đối tác:</label>
-            <select v-model="form.partner_code" required>
-            <option value="" disabled>Chọn mã đối tác</option>
-            <option v-for="partner in partners" :key="partner.id" :value="partner.code">
-                {{ partner.code }} - {{ partner.name }}
-            </option>
-            </select>
-
-        </div>
-        <div>
-          <label>Tên phương tiện:</label>
-          <input v-model="form.name" type="text" required />
-        </div>
-        <div>
-          <label>Tải tối đa:</label>
-          <input v-model="form.max_load" type="number" />
-        </div>
-        <div>
-          <label>Lịch bảo dưỡng:</label>
-          <input v-model="form.maintenance_date" type="date" />
-        </div>
-        <button type="submit">Cập nhật</button>
-        <button type="button" @click="$router.push('/vehicles')" class="btn-back">Trở về</button>
-      </form>
-    </div>
+  <div v-if="isLoading">Loading...</div>
+  <div v-else>
+    <h1>Chỉnh sửa phương tiện</h1>
+    <form @submit.prevent="updateVehicle">
+      <div>
+        <label>Mã đối tác:</label>
+        <select v-model="form.partner_code" required>
+          <option value="" disabled>Chọn mã đối tác</option>
+          <option v-for="partner in partners" :key="partner.id" :value="partner.code">
+            {{ partner.code }} - {{ partner.name }}
+          </option>
+        </select>
+      </div>
+      <div>
+        <label>Tên phương tiện:</label>
+        <input v-model="form.name" type="text" required />
+      </div>
+      <div>
+        <label>Tải tối đa:</label>
+        <input v-model="form.max_load" type="number" />
+        <h6>[ Tải tối đa là 999999 ]</h6>
+      </div>
+      <div>
+        <label>Lịch bảo dưỡng:</label>
+        <input v-model="form.maintenance_date" type="date" />
+      </div>
+      <button type="submit">Cập nhật</button>
+      <button type="button" @click="$router.push('/vehicles')" class="btn-back">Trở về</button>
+    </form>
+  </div>
 </template>
 
 <script>
@@ -37,6 +38,7 @@ import { useToast } from "vue-toastification";
 export default {
   data() {
     return {
+      isLoading: true,
       form: {
         partner_code: "",
         name: "",
@@ -44,54 +46,68 @@ export default {
         maintenance_date: "",
       },
       partners: [],
+      maxLoadLimit: 999999, // Example maximum load limit
     };
   },
   methods: {
     fetchVehicle() {
+      console.log(this.$route.params.id);
       axios.get(`/api/vehicles/${this.$route.params.id}`)
         .then((response) => {
-          console.log("Vehicle data:", response.data); // Debug log
-          // Ensure the response is mapped to the expected form structure
-            this.form.partner_code = response.data.partner_code || "";
-            this.form.name = response.data.name || "";
-            this.form.max_load = response.data.max_load || 0;
-            this.form.maintenance_date = response.data.maintenance_date || "";
-
+          console.log("API Response:", response.data);
+          this.form.partner_code = response.data.partner_code || "";
+          this.form.name = response.data.name || "";
+          this.form.max_load = response.data.max_load || 0;
+          this.form.maintenance_date = response.data.maintenance_date || "";
         })
         .catch((error) => {
-          console.error("Error fetching vehicle:", error); // Debug log
-          this.toast.error(error.response?.data?.message || "Không thể tải thông tin phương tiện!");
+          console.error("API Error:", error);
+          if (error.response?.status === 404) {
+            this.toast.error("This Vehicle has been Deleted");
+            this.$router.push("/vehicles");
+          } else {
+            this.toast.error(error.response?.data?.message || "Không thể tải thông tin phương tiện!");
+          }
+        })
+        .finally(() => {
+          this.isLoading = false;
         });
     },
     fetchPartners() {
       return axios.get("/api/partners")
         .then((response) => {
-          console.log("Partners data:", response.data); // Debug log
+          console.log(response.data);
           this.partners = response.data;
         })
         .catch((error) => {
-          console.error("Error fetching partners:", error); // Debug log
           this.toast.error(error.response?.data?.message || "Không thể tải danh sách đối tác!");
         });
     },
     updateVehicle() {
-      console.log("Form data before update:", this.form); // Debug log
+      // Validation for max_load
+      if (this.form.max_load < 0) {
+        this.toast.error("Tải tối đa không được là số âm");
+        return;
+      }
+      if (this.form.max_load > this.maxLoadLimit) {
+        this.toast.error("Số tải vượt mức cho phép");
+        return;
+      }
+
       axios.put(`/api/vehicles/${this.$route.params.id}`, this.form)
         .then(() => {
           this.toast.success("Cập nhật phương tiện thành công!");
           this.$router.push("/vehicles");
         })
         .catch((error) => {
-          console.error("Error updating vehicle:", error); // Debug log
           this.toast.error(error.response?.data?.message || "Cập nhật phương tiện thất bại!");
         });
     },
   },
   mounted() {
     this.toast = useToast();
-    console.log("Route ID:", this.$route.params.id); // Debug log
     this.fetchPartners().then(() => {
-        this.fetchVehicle(); // Ensure partners are ready first
+      this.fetchVehicle();
     });
   },
 };
