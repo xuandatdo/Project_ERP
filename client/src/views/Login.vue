@@ -5,29 +5,15 @@
       <form @submit.prevent="handleLogin" class="login-form">
         <div class="form-group">
           <label for="username">Tên đăng nhập</label>
-          <input
-            v-model="username"
-            type="text"
-            id="username"
-            required
-            placeholder="Nhập tên đăng nhập"
-          />
+          <input v-model="username" type="text" id="username" required placeholder="Nhập tên đăng nhập" />
         </div>
         <div class="form-group">
           <label for="password">Mật khẩu</label>
           <div class="password-input">
-            <input
-              v-model="password"
-              :type="showPassword ? 'text' : 'password'"
-              id="password"
-              required
-              placeholder="Nhập mật khẩu"
-            />
-            <i
-              class="password-toggle"
-              :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"
-              @click="togglePassword"
-            ></i>
+            <input v-model="password" :type="showPassword ? 'text' : 'password'" id="password" required
+              placeholder="Nhập mật khẩu" />
+            <i class="password-toggle" :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"
+              @click="togglePassword"></i>
           </div>
         </div>
         <div v-if="error" class="error-message">{{ error }}</div>
@@ -57,8 +43,8 @@ export default {
       const validPassword = '@123456'
 
       if (this.username === validUsername && this.password === validPassword) {
-        // Lưu trạng thái đăng nhập
-        localStorage.setItem('isAuthenticated', 'true')
+        // Sử dụng sessionStorage thay vì localStorage
+        sessionStorage.setItem('isAuthenticated', 'true')
         // Chuyển hướng đến trang EmployeeList
         this.$router.push('/employees')
       } else {
@@ -67,8 +53,8 @@ export default {
     }
   },
   created() {
-    // Kiểm tra nếu đã đăng nhập thì chuyển hướng đến trang EmployeeList
-    if (localStorage.getItem('isAuthenticated') === 'true') {
+    // Kiểm tra nếu đã đăng nhập thì chuyển hướng
+    if (sessionStorage.getItem('isAuthenticated') === 'true') {
       this.$router.push('/employees')
     }
   }

@@ -24,6 +24,7 @@
                     <div class="form-group">
                         <label for="email">Email <span class="required">*</span></label>
                         <input v-model="form.email" id="email" type="email" placeholder="Nhập email" required />
+                        <span class="note">Email phải là duy nhất và không được trùng với nhân viên khác</span>
                         <span v-if="errors.email" class="error">{{ errors.email }}</span>
                     </div>
                     <div class="form-group">
@@ -397,15 +398,18 @@ select:focus {
 }
 
 .note {
+    display: block;
+    font-size: 0.85em;
     color: #666;
-    font-size: 12px;
     margin-top: 5px;
+    font-style: italic;
 }
 
 .error {
-    color: red;
-    font-size: 12px;
+    color: #dc3545;
+    font-size: 0.85em;
     margin-top: 5px;
+    display: block;
 }
 
 .form-actions {

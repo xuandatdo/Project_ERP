@@ -8,24 +8,13 @@
                 <form @submit.prevent="updateTask">
                     <div class="form-group">
                         <label for="name">Tên công việc</label>
-                        <input
-                            type="text"
-                            id="name"
-                            v-model="task.name"
-                            class="form-control"
-                            required
-                        >
+                        <input type="text" id="name" v-model="task.name" class="form-control" required>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group col-md-4">
                             <label for="employee_id">Người phụ trách</label>
-                            <select
-                                id="employee_id"
-                                v-model="task.employee_id"
-                                class="form-control"
-                                required
-                            >
+                            <select id="employee_id" v-model="task.employee_id" class="form-control" required>
                                 <option value="">Chọn người phụ trách</option>
                                 <option v-for="employee in employees" :key="employee.id" :value="employee.id">
                                     {{ employee.name }}
@@ -35,36 +24,19 @@
 
                         <div class="form-group col-md-4">
                             <label for="start_date">Ngày bắt đầu</label>
-                            <input
-                                type="date"
-                                id="start_date"
-                                v-model="task.start_date"
-                                class="form-control"
-                                required
-                            >
+                            <input type="date" id="start_date" v-model="task.start_date" class="form-control" required>
                         </div>
 
                         <div class="form-group col-md-4">
                             <label for="end_date">Ngày kết thúc</label>
-                            <input
-                                type="date"
-                                id="end_date"
-                                v-model="task.end_date"
-                                class="form-control"
-                                required
-                            >
+                            <input type="date" id="end_date" v-model="task.end_date" class="form-control" required>
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group col-md-4">
                             <label for="priority">Ưu tiên</label>
-                            <select
-                                id="priority"
-                                v-model="task.priority"
-                                class="form-control"
-                                required
-                            >
+                            <select id="priority" v-model="task.priority" class="form-control" required>
                                 <option value="">Chọn mức độ ưu tiên</option>
                                 <option value="Cao">Cao</option>
                                 <option value="Trung bình">Trung bình</option>
@@ -74,25 +46,13 @@
 
                         <div class="form-group col-md-4">
                             <label for="progress">Tiến độ (%)</label>
-                            <input
-                                type="number"
-                                id="progress"
-                                v-model.number="task.progress"
-                                class="form-control"
-                                min="0"
-                                max="100"
-                                required
-                            >
+                            <input type="number" id="progress" v-model.number="task.progress" class="form-control"
+                                min="0" max="100" required>
                         </div>
 
                         <div class="form-group col-md-4">
                             <label for="status">Trạng thái</label>
-                            <select
-                                id="status"
-                                v-model="task.status"
-                                class="form-control"
-                                required
-                            >
+                            <select id="status" v-model="task.status" class="form-control" required>
                                 <option value="">Chọn trạng thái</option>
                                 <option value="Chưa bắt đầu">Chưa bắt đầu</option>
                                 <option value="Đang thực hiện">Đang thực hiện</option>
@@ -104,15 +64,8 @@
 
                     <div class="form-group">
                         <label for="description">Mô tả công việc</label>
-                        <textarea
-                            id="description"
-                            v-model="task.description"
-                            class="form-control"
-                            rows="4"
-                        ></textarea>
+                        <textarea id="description" v-model="task.description" class="form-control" rows="4"></textarea>
                     </div>
-
-
 
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">Cập nhật</button>
@@ -126,7 +79,7 @@
 
 <script>
 import axios from 'axios';
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 
 export default {
@@ -147,6 +100,36 @@ export default {
             attachments: []
         });
 
+        // Watch cho trạng thái để cập nhật tiến độ
+        watch(() => task.status, (newStatus) => {
+            if (newStatus === 'Chưa bắt đầu') {
+                task.progress = 0;
+            } else if (newStatus === 'Hoàn thành') {
+                task.progress = 100;
+            } else if (newStatus === 'Tạm dừng' && task.progress === 100) {
+                // Nếu chọn tạm dừng và tiến độ đang 100%, set về 99%
+                task.progress = 99;
+            }
+        });
+
+        // Watch cho tiến độ để cập nhật trạng thái
+        watch(() => task.progress, (newProgress) => {
+            if (newProgress === 0) {
+                task.status = 'Chưa bắt đầu';
+            } else if (newProgress === 100) {
+                if (task.status === 'Tạm dừng') {
+                    // Nếu đang tạm dừng, không cho phép đạt 100%
+                    task.progress = 99;
+                } else {
+                    task.status = 'Hoàn thành';
+                }
+            } else if (newProgress > 0 && newProgress < 100) {
+                if (task.status === 'Chưa bắt đầu' || task.status === 'Hoàn thành') {
+                    task.status = 'Đang thực hiện';
+                }
+            }
+        });
+
         const fetchEmployees = async () => {
             try {
                 const response = await axios.get('/api/employees');
@@ -165,6 +148,22 @@ export default {
             }
         };
 
+        const validateTask = () => {
+            if (task.status === 'Chưa bắt đầu' && task.progress !== 0) {
+                alert('Công việc chưa bắt đầu phải có tiến độ 0%');
+                return false;
+            }
+            if (task.status === 'Hoàn thành' && task.progress !== 100) {
+                alert('Công việc hoàn thành phải có tiến độ 100%');
+                return false;
+            }
+            if (task.status === 'Tạm dừng' && task.progress === 100) {
+                alert('Công việc tạm dừng không thể có tiến độ 100%');
+                return false;
+            }
+            return true;
+        };
+
         const handleFileUpload = (event) => {
             const files = Array.from(event.target.files);
             task.attachments.push(...files);
@@ -175,6 +174,8 @@ export default {
         };
 
         const updateTask = async () => {
+            if (!validateTask()) return;
+
             try {
                 const formData = new FormData();
                 Object.keys(task).forEach(key => {
@@ -192,7 +193,7 @@ export default {
                         'Content-Type': 'multipart/form-data'
                     }
                 });
-                
+
                 alert('Cập nhật công việc thành công!');
                 router.push('/tasks');
             } catch (error) {
@@ -248,7 +249,7 @@ export default {
     margin-left: -15px;
 }
 
-.form-row > .form-group {
+.form-row>.form-group {
     padding-right: 15px;
     padding-left: 15px;
     margin-bottom: 20px;

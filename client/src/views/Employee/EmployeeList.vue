@@ -152,7 +152,7 @@ export default {
 
         async deleteEmployee() {
             if (!this.employeeToDelete) return;
-            
+
             try {
                 await axios.delete(`/api/employees/${this.employeeToDelete.id}`);
                 this.fetchEmployees();
@@ -372,6 +372,7 @@ span {
         transform: translateY(-100px);
         opacity: 0;
     }
+
     to {
         transform: translateY(0);
         opacity: 1;

@@ -71,7 +71,7 @@
                         <div class="form-group">
                             <label for="quantity">Số lượng <span class="required">*</span></label>
                             <input v-model.number="form.quantity" id="quantity" type="number"
-                                placeholder="Nhập số lượng" required min="1" />
+                                placeholder="Nhập số lượng thùng hàng, bao bì, pallet..." required min="1" />
                             <span v-if="errors.quantity" class="error">{{ errors.quantity }}</span>
                         </div>
                     </div>

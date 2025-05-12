@@ -1,6 +1,5 @@
 <template>
     <div class="dashboard-container">
-        <h1>Thống kê dữ liệu vận tải</h1>
 
         <!-- Summary Cards -->
         <div class="summary-cards">

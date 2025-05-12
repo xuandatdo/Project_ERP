@@ -27,7 +27,7 @@ import VehicleEdit from "../views/Vehicle/VehicleEdit.vue";
 import TransportDataList from "../views/TransportData/TransportDataList.vue";
 
 const routes = [
-  { path: "/", redirect: "/employees" },
+  { path: "/", redirect: "/login" },
   { path: "/login", component: Login },
   {
     path: "/employees",
@@ -177,15 +177,19 @@ const router = createRouter({
   routes,
 });
 
-// Navigation guard
+// Kiểm tra xác thực trước khi vào route
 router.beforeEach((to, from, next) => {
-  if (to.matched.some((record) => record.meta.requiresAuth)) {
-    // Kiểm tra trạng thái đăng nhập
-    if (localStorage.getItem("isAuthenticated") !== "true") {
-      next("/login");
-    } else {
-      next();
-    }
+  const isAuthenticated = sessionStorage.getItem("isAuthenticated") === "true";
+
+  // Nếu route yêu cầu xác thực và chưa đăng nhập
+  if (
+    to.matched.some((record) => record.meta.requiresAuth) &&
+    !isAuthenticated
+  ) {
+    next("/login");
+  } else if (to.path === "/login" && isAuthenticated) {
+    // Nếu đã đăng nhập và cố truy cập trang login
+    next("/employees");
   } else {
     next();
   }
