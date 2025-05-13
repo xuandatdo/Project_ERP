@@ -30,7 +30,8 @@
                         <td>{{ getDepartmentName(position.department_id) }}</td>
                         <td>
                             <div class="action-buttons">
-                                <router-link :to="`/positions/${position.id}/edit`" class="btn btn-sm btn-edit btn-primary">Sửa</router-link>
+                                <router-link :to="`/positions/${position.id}/edit`"
+                                    class="btn btn-sm btn-edit btn-primary">Sửa</router-link>
                                 <button @click="confirmDelete(position)" class="btn btn-sm btn-danger">Xóa</button>
                             </div>
                         </td>
@@ -100,12 +101,12 @@ export default {
     created() {
         this.loadDepartments();
         this.loadPositions();
-        
+
         // Kiểm tra nếu có department query param
         if (this.$route.query.department) {
             this.selectedDepartment = parseInt(this.$route.query.department);
         }
-        
+
         // Kiểm tra nếu có message query param
         if (this.$route.query.message) {
             this.message = this.$route.query.message;
@@ -156,12 +157,8 @@ export default {
                 delete query.department;
                 this.$router.replace({ query });
             }
-            
+
             this.loadPositions();
-        },
-        confirmDelete(position) {
-            this.positionToDelete = position;
-            this.showDeleteModal = true;
         },
         confirmDelete(position) {
             this.positionToDelete = position;
@@ -169,7 +166,7 @@ export default {
         },
         async deletePosition() {
             if (!this.positionToDelete) return;
-            
+
             try {
                 await axios.delete(`/api/positions/${this.positionToDelete.id}`);
                 this.message = `Đã xóa vị trí "${this.positionToDelete.name}" thành công`;
@@ -222,7 +219,8 @@ export default {
     margin-bottom: 20px;
 }
 
-.table th, .table td {
+.table th,
+.table td {
     padding: 12px 15px;
     border: 1px solid #ddd;
     text-align: left;
@@ -276,10 +274,12 @@ export default {
     background-color: #007bff;
     color: white;
 }
-.btn-edit{
+
+.btn-edit {
     background-color: #ffc107;
     color: #333;
 }
+
 .btn-danger {
     background-color: #dc3545;
     color: white;
@@ -354,15 +354,27 @@ export default {
     color: black;
 }
 
+.table-responsive {
+    overflow-x: auto;
+    margin-bottom: 1rem;
+    -webkit-overflow-scrolling: touch;
+}
+
 .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     margin-top: 20px;
-    text-align: center;
+    gap: 10px;
 }
 
 .btn-page {
     background-color: #007bff;
     color: white;
-    margin: 0 10px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
 }
 
 .btn-page:disabled {
@@ -375,8 +387,7 @@ export default {
 }
 
 .pagination span {
-    font-size: 16px;
-    margin: 0 10px;
+    font-size: 14px;
 }
 
 @media (max-width: 768px) {
@@ -384,12 +395,12 @@ export default {
         flex-direction: column;
         align-items: flex-start;
     }
-    
+
     .header-actions {
         margin-top: 10px;
         width: 100%;
     }
-    
+
     .modal-content {
         width: 90%;
     }

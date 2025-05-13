@@ -6,13 +6,13 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://127.0.0.1:8000/", // URL API Laravel
+        target: "https://www.erp.plt.pro.vn/", // URL API Laravel
         changeOrigin: true,
         secure: false,
       },
       "/storage": {
         // Thêm proxy cho /storage
-        target: "http://127.0.0.1:8000/",
+        target: "https://www.erp.plt.pro.vn/",
         changeOrigin: true,
         secure: false,
       },

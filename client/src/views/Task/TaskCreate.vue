@@ -48,6 +48,7 @@
                             <label for="progress">Tiến độ (%)</label>
                             <input type="number" id="progress" v-model.number="task.progress" class="form-control"
                                 min="0" max="100" required>
+                            <span v-if="errors.progress" class="error">{{ errors.progress }}</span>
                         </div>
 
                         <div class="form-group col-md-4">
@@ -86,6 +87,7 @@ export default {
     setup() {
         const router = useRouter();
         const employees = ref([]);
+        const errors = ref({});
         const task = reactive({
             name: '',
             employee_id: '',
@@ -104,7 +106,6 @@ export default {
             } else if (newStatus === 'Hoàn thành') {
                 task.progress = 100;
             } else if (newStatus === 'Tạm dừng' && task.progress === 100) {
-                // Nếu chọn tạm dừng và tiến độ đang 100%, set về 99%
                 task.progress = 99;
             }
         });
@@ -115,7 +116,6 @@ export default {
                 task.status = 'Chưa bắt đầu';
             } else if (newProgress === 100) {
                 if (task.status === 'Tạm dừng') {
-                    // Nếu đang tạm dừng, không cho phép đạt 100%
                     task.progress = 99;
                 } else {
                     task.status = 'Hoàn thành';
@@ -137,16 +137,22 @@ export default {
         };
 
         const validateTask = () => {
+            errors.value = {};
+
             if (task.status === 'Chưa bắt đầu' && task.progress !== 0) {
-                alert('Công việc chưa bắt đầu phải có tiến độ 0%');
+                errors.value.progress = 'Công việc chưa bắt đầu phải có tiến độ 0%';
                 return false;
             }
             if (task.status === 'Hoàn thành' && task.progress !== 100) {
-                alert('Công việc hoàn thành phải có tiến độ 100%');
+                errors.value.progress = 'Công việc hoàn thành phải có tiến độ 100%';
                 return false;
             }
             if (task.status === 'Tạm dừng' && task.progress === 100) {
-                alert('Công việc tạm dừng không thể có tiến độ 100%');
+                errors.value.progress = 'Công việc tạm dừng không thể có tiến độ 100%';
+                return false;
+            }
+            if (task.status === 'Đang thực hiện' && (task.progress < 1 || task.progress > 99)) {
+                errors.value.progress = 'Tiến độ phải từ 1% đến 99% khi công việc đang thực hiện';
                 return false;
             }
             return true;
@@ -173,6 +179,7 @@ export default {
         return {
             task,
             employees,
+            errors,
             createTask
         };
     }
@@ -269,5 +276,11 @@ label {
 .btn-secondary {
     background-color: #6c757d;
     color: white;
+}
+
+.error {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
 }
 </style>

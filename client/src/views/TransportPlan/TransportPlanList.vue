@@ -22,14 +22,14 @@
             <table class="transport-table" v-if="paginatedPlans.length > 0">
                 <thead>
                     <tr>
-                        <th>Mã lô hàng</th>
-                        <th>Biển số</th>
-                        <th>Tài xế</th>
-                        <th>Số điện thoại</th>
+                        <th>Mã LH</th>
+                        <th>Biển số xe</th>
+                        <th>Tên tài xế</th>
+                        <th>SĐT tài xế</th>
                         <th>Thời gian dự kiến</th>
                         <th>Trạng thái</th>
-                        <th>Địa điểm giao</th>
-                        <th>Địa điểm nhận</th>
+                        <th>Điểm giao hàng</th>
+                        <th>Điểm lấy hàng</th>
                         <th>Số lượng</th>
                         <th>Thao tác</th>
                     </tr>
@@ -65,10 +65,14 @@
             <div v-else class="no-data">Không có kế hoạch vận chuyển nào</div>
         </div>
 
-        <div class="pagination" v-if="totalPages > 1">
-            <button @click="prevPage" :disabled="currentPage === 1" class="btn btn-page">Trang trước</button>
+        <div class="pagination">
+            <button @click="prevPage" :disabled="currentPage === 1" class="btn btn-page">
+                Trang trước
+            </button>
             <span>Trang {{ currentPage }} / {{ totalPages }}</span>
-            <button @click="nextPage" :disabled="currentPage === totalPages" class="btn btn-page">Trang sau</button>
+            <button @click="nextPage" :disabled="currentPage === totalPages" class="btn btn-page">
+                Trang sau
+            </button>
         </div>
 
         <!-- Modal xác nhận xóa -->
@@ -108,7 +112,7 @@ export default {
                 date: '',
             },
             currentPage: 1,
-            itemsPerPage: 5,
+            itemsPerPage: 10,
             showDeleteModal: false,
             planToDelete: null,
         };
@@ -142,9 +146,7 @@ export default {
 
                 const matchesStatus = !this.filters.status || plan.status === this.filters.status;
 
-                const matchesDate =
-                    !this.filters.date ||
-                    new Date(plan.expected_time).toISOString().split('T')[0] === this.filters.date;
+                const matchesDate = !this.filters.date || this.isSameDate(plan.expected_time, this.filters.date);
 
                 return matchesSearch && matchesStatus && matchesDate;
             });
@@ -168,12 +170,22 @@ export default {
         'filters.date'() {
             this.currentPage = 1;
         },
+        totalPages(newVal) {
+            if (this.currentPage > newVal && newVal > 0) {
+                this.currentPage = newVal;
+            }
+        }
     },
     methods: {
         async loadTransportPlans() {
             try {
                 const response = await axios.get('/api/transport-plans');
                 this.transportPlans = response.data.data;
+
+                // Kiểm tra và điều chỉnh trang hiện tại nếu cần
+                if (this.totalPages > 0 && this.currentPage > this.totalPages) {
+                    this.currentPage = this.totalPages;
+                }
             } catch (error) {
                 console.error('Lỗi khi tải danh sách kế hoạch vận chuyển:', error);
                 this.toast.error('Có lỗi xảy ra khi tải danh sách');
@@ -191,14 +203,40 @@ export default {
             if (!this.planToDelete) return;
 
             try {
-                await axios.delete(`/api/transport-plans/${this.planToDelete.id}`);
+                const response = await axios.delete(`/api/transport-plans/${this.planToDelete.id}`);
+
+                // Kiểm tra nếu là item cuối cùng của trang và không phải trang 1
+                const isLastItemOfPage = this.paginatedPlans.length === 1 && this.currentPage > 1;
+
+                await this.loadTransportPlans();
+
+                // Nếu là item cuối cùng và xóa thành công, chuyển về trang trước
+                if (isLastItemOfPage) {
+                    this.currentPage--;
+                }
+
                 this.toast.success('Xóa kế hoạch vận chuyển thành công!');
-                this.loadTransportPlans();
                 this.showDeleteModal = false;
                 this.planToDelete = null;
             } catch (error) {
                 console.error('Lỗi khi xóa kế hoạch vận chuyển:', error);
-                this.toast.error('Có lỗi xảy ra khi xóa kế hoạch vận chuyển');
+
+                let errorMessage = 'Có lỗi xảy ra khi xóa kế hoạch vận chuyển';
+
+                if (error.response) {
+                    console.log('Error status:', error.response.status);
+                    console.log('Error data:', error.response.data);
+
+                    if (error.response.status === 403) {
+                        errorMessage = 'Bạn không có quyền xóa kế hoạch vận chuyển này';
+                    } else if (error.response.status === 409) {
+                        errorMessage = 'Không thể xóa: Kế hoạch vận chuyển đang được sử dụng';
+                    } else if (error.response.data && error.response.data.message) {
+                        errorMessage = error.response.data.message;
+                    }
+                }
+
+                this.toast.error(errorMessage);
                 this.showDeleteModal = false;
             }
         },
@@ -208,13 +246,21 @@ export default {
         },
         formatDateTime(datetime) {
             if (!datetime) return '';
-            const date = new Date(datetime);
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            return `${year}-${month}-${day} ${hours}:${minutes}`;
+            try {
+                const date = new Date(datetime);
+                if (isNaN(date.getTime())) return ''; // Invalid date
+
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+
+                return `${day}/${month}/${year} ${hours}:${minutes}`;
+            } catch (error) {
+                console.error('Error formatting date:', error);
+                return '';
+            }
         },
         getStatusText(status) {
             const statusMap = {
@@ -237,11 +283,13 @@ export default {
         prevPage() {
             if (this.currentPage > 1) {
                 this.currentPage--;
+                console.log('Chuyển đến trang:', this.currentPage);
             }
         },
         nextPage() {
             if (this.currentPage < this.totalPages) {
                 this.currentPage++;
+                console.log('Chuyển đến trang:', this.currentPage);
             }
         },
         async updateStatus(planId, newStatus) {
@@ -274,6 +322,16 @@ export default {
 
                 await this.loadTransportPlans();
             }
+        },
+        isSameDate(dateTime1, dateTime2) {
+            if (!dateTime1 || !dateTime2) return false;
+
+            const date1 = new Date(dateTime1);
+            const date2 = new Date(dateTime2);
+
+            return date1.getFullYear() === date2.getFullYear() &&
+                date1.getMonth() === date2.getMonth() &&
+                date1.getDate() === date2.getDate();
         },
     },
 };
@@ -472,6 +530,11 @@ function debounce(fn, delay) {
 
 .btn-page:hover:not(:disabled) {
     background-color: #0056b3;
+}
+
+span {
+    font-size: 16px;
+    margin: 0 10px;
 }
 
 .no-data {

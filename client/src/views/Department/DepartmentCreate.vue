@@ -11,25 +11,15 @@
         <form @submit.prevent="createDepartment" class="department-form">
             <div class="form-group">
                 <label for="name">Tên phòng ban <span class="required">*</span></label>
-                <input 
-                    type="text" 
-                    id="name" 
-                    v-model="department.name" 
-                    class="form-control" 
-                    required
-                    placeholder="Nhập tên phòng ban"
-                >
+                <input type="text" id="name" v-model="department.name" class="form-control" required
+                    placeholder="Nhập tên phòng ban" @input="validateName">
+                <span v-if="errors.name" class="error">{{ errors.name }}</span>
             </div>
 
             <div class="form-group">
                 <label for="description">Mô tả</label>
-                <textarea 
-                    id="description" 
-                    v-model="department.description" 
-                    class="form-control" 
-                    rows="4"
-                    placeholder="Nhập mô tả phòng ban"
-                ></textarea>
+                <textarea id="description" v-model="department.description" class="form-control" rows="4"
+                    placeholder="Nhập mô tả phòng ban"></textarea>
             </div>
 
             <div class="form-actions">
@@ -53,14 +43,38 @@ export default {
                 description: ''
             },
             error: '',
-            isSubmitting: false
+            isSubmitting: false,
+            errors: {
+                name: ''
+            }
         };
     },
     methods: {
+        validateName() {
+            const numberRegex = /[0-9]/;
+            const specialCharsRegex = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]+/;
+
+            if (numberRegex.test(this.department.name)) {
+                this.errors.name = 'Tên phòng ban không được chứa số';
+                return false;
+            }
+
+            if (specialCharsRegex.test(this.department.name)) {
+                this.errors.name = 'Tên phòng ban không được chứa ký tự đặc biệt';
+                return false;
+            }
+
+            this.errors.name = '';
+            return true;
+        },
         async createDepartment() {
+            if (!this.validateName()) {
+                return;
+            }
+
             this.isSubmitting = true;
             this.error = '';
-            
+
             try {
                 const response = await axios.post('/api/departments', this.department);
                 this.$router.push({
@@ -177,5 +191,12 @@ label {
     background-color: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
+}
+
+.error {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
 }
 </style>

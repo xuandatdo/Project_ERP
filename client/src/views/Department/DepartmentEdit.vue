@@ -15,25 +15,15 @@
         <form v-else @submit.prevent="updateDepartment" class="department-form">
             <div class="form-group">
                 <label for="name">Tên phòng ban <span class="required">*</span></label>
-                <input 
-                    type="text" 
-                    id="name" 
-                    v-model="department.name" 
-                    class="form-control" 
-                    required
-                    placeholder="Nhập tên phòng ban"
-                >
+                <input type="text" id="name" v-model="department.name" class="form-control" required
+                    placeholder="Nhập tên phòng ban" @input="validateName">
+                <span v-if="errors.name" class="error">{{ errors.name }}</span>
             </div>
 
             <div class="form-group">
                 <label for="description">Mô tả</label>
-                <textarea 
-                    id="description" 
-                    v-model="department.description" 
-                    class="form-control" 
-                    rows="4"
-                    placeholder="Nhập mô tả phòng ban"
-                ></textarea>
+                <textarea id="description" v-model="department.description" class="form-control" rows="4"
+                    placeholder="Nhập mô tả phòng ban"></textarea>
             </div>
 
             <div class="form-actions">
@@ -58,13 +48,33 @@ export default {
             },
             error: '',
             loading: true,
-            isSubmitting: false
+            isSubmitting: false,
+            errors: {
+                name: ''
+            }
         };
     },
     created() {
         this.loadDepartment();
     },
     methods: {
+        validateName() {
+            const numberRegex = /[0-9]/;
+            const specialCharsRegex = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]+/;
+
+            if (numberRegex.test(this.department.name)) {
+                this.errors.name = 'Tên phòng ban không được chứa số';
+                return false;
+            }
+
+            if (specialCharsRegex.test(this.department.name)) {
+                this.errors.name = 'Tên phòng ban không được chứa ký tự đặc biệt';
+                return false;
+            }
+
+            this.errors.name = '';
+            return true;
+        },
         async loadDepartment() {
             try {
                 const response = await axios.get(`/api/departments/${this.$route.params.id}`);
@@ -81,9 +91,13 @@ export default {
             }
         },
         async updateDepartment() {
+            if (!this.validateName()) {
+                return;
+            }
+
             this.isSubmitting = true;
             this.error = '';
-            
+
             try {
                 const response = await axios.put(`/api/departments/${this.$route.params.id}`, this.department);
                 this.$router.push({
@@ -204,5 +218,12 @@ label {
 .loading {
     text-align: center;
     padding: 20px;
+}
+
+.error {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
 }
 </style>

@@ -247,29 +247,133 @@ export default {
 
         validateForm() {
             this.errors = {};
+            const specialCharsRegex = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]+/;
+            const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
 
-            if (!this.form.name) this.errors.name = 'Vui lòng nhập tên';
-            if (!this.form.email || !this.isValidEmail(this.form.email)) this.errors.email = 'Vui lòng nhập email hợp lệ';
-            if (!this.form.birth_date) this.errors.birth_date = 'Vui lòng chọn ngày sinh';
+            // Validate name
+            if (!this.form.name) {
+                this.errors.name = 'Vui lòng nhập tên';
+            } else if (specialCharsRegex.test(this.form.name)) {
+                this.errors.name = 'Tên không được chứa ký tự đặc biệt';
+            }
+
+            // Validate email
+            if (!this.form.email) {
+                this.errors.email = 'Vui lòng nhập email';
+            } else if (!gmailRegex.test(this.form.email)) {
+                this.errors.email = 'Email phải có định dạng @gmail.com';
+            }
+
+            // Validate birth_date
+            if (!this.form.birth_date) {
+                this.errors.birth_date = 'Vui lòng chọn ngày sinh';
+            } else {
+                const birthDate = new Date(this.form.birth_date);
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                tomorrow.setHours(0, 0, 0, 0);
+
+                if (birthDate >= tomorrow) {
+                    this.errors.birth_date = 'Ngày sinh không thể là ngày mai hoặc tương lai';
+                }
+            }
+
+            // Validate profile_image
             if (!this.form.profile_image) {
                 this.errors.profile_image = 'Vui lòng chọn ảnh';
             } else if (!this.isValidImage(this.form.profile_image)) {
                 this.errors.profile_image = 'Ảnh không hợp lệ (max 2MB, 1024x1024px)';
             }
-            if (!this.form.address) this.errors.address = 'Vui lòng nhập địa chỉ';
-            if (!this.form.phone || !this.isValidPhone(this.form.phone)) this.errors.phone = 'Số điện thoại phải là 10 chữ số';
-            if (!this.form.gender) this.errors.gender = 'Vui lòng chọn giới tính';
-            if (!this.form.department_id) this.errors.department_id = 'Vui lòng chọn phòng ban';
-            if (!this.form.position_id) this.errors.position_id = 'Vui lòng chọn vị trí';
-            if (!this.form.workplace) this.errors.workplace = 'Vui lòng nhập địa điểm làm việc';
-            if (!this.form.start_date) this.errors.start_date = 'Vui lòng chọn ngày bắt đầu';
-            if (!this.form.work_hours) this.errors.work_hours = 'Vui lòng nhập thời gian làm việc';
-            if (!this.form.salary_structure) this.errors.salary_structure = 'Vui lòng nhập cấu trúc lương';
-            if (!this.form.supervisor) this.errors.supervisor = 'Vui lòng nhập người phụ trách';
-            if (!this.form.salary_type) this.errors.salary_type = 'Vui lòng chọn loại lương';
-            if (!this.form.salary_amount || this.form.salary_amount <= 0) this.errors.salary_amount = 'Tiền lương phải lớn hơn 0';
-            if (!this.form.work_experience) this.errors.work_experience = 'Vui lòng nhập kinh nghiệm làm việc';
-            if (!this.form.education_level) this.errors.education_level = 'Vui lòng chọn trình độ';
+
+            // Validate address
+            if (!this.form.address) {
+                this.errors.address = 'Vui lòng nhập địa chỉ';
+            }
+
+            // Validate phone
+            if (!this.form.phone) {
+                this.errors.phone = 'Vui lòng nhập số điện thoại';
+            } else if (!/^[0-9]{10}$/.test(this.form.phone)) {
+                this.errors.phone = 'Số điện thoại phải là 10 chữ số';
+            }
+
+            // Validate gender
+            if (!this.form.gender) {
+                this.errors.gender = 'Vui lòng chọn giới tính';
+            }
+
+            // Validate work_hours
+            if (!this.form.work_hours) {
+                this.errors.work_hours = 'Vui lòng nhập thời gian làm việc';
+            } else if (specialCharsRegex.test(this.form.work_hours)) {
+                this.errors.work_hours = 'Thời gian làm việc không được chứa ký tự đặc biệt';
+            }
+
+            // Validate education_level
+            if (!this.form.education_level) {
+                this.errors.education_level = 'Vui lòng chọn trình độ';
+            }
+
+            // Validate work_experience
+            if (!this.form.work_experience) {
+                this.errors.work_experience = 'Vui lòng nhập kinh nghiệm làm việc';
+            } else if (specialCharsRegex.test(this.form.work_experience)) {
+                this.errors.work_experience = 'Kinh nghiệm làm việc không được chứa ký tự đặc biệt';
+            }
+
+            // Validate supervisor
+            if (!this.form.supervisor) {
+                this.errors.supervisor = 'Vui lòng nhập người phụ trách';
+            } else if (specialCharsRegex.test(this.form.supervisor)) {
+                this.errors.supervisor = 'Tên người phụ trách không được chứa ký tự đặc biệt';
+            }
+
+            // Validate department and position
+            if (!this.form.department_id) {
+                this.errors.department_id = 'Vui lòng chọn phòng ban';
+            }
+            if (!this.form.position_id) {
+                this.errors.position_id = 'Vui lòng chọn vị trí';
+            }
+
+            // Validate workplace
+            if (!this.form.workplace) {
+                this.errors.workplace = 'Vui lòng nhập địa điểm làm việc';
+            } else if (specialCharsRegex.test(this.form.workplace)) {
+                this.errors.workplace = 'Địa điểm làm việc không được chứa ký tự đặc biệt';
+            }
+
+            // Validate dates
+            const startDate = new Date(this.form.start_date);
+            const endDate = this.form.end_date ? new Date(this.form.end_date) : null;
+            const probationEndDate = this.form.probation_end ? new Date(this.form.probation_end) : null;
+
+            if (!this.form.start_date) {
+                this.errors.start_date = 'Vui lòng chọn ngày bắt đầu';
+            }
+
+            if (endDate && endDate <= startDate) {
+                this.errors.end_date = 'Ngày kết thúc phải sau ngày bắt đầu';
+            }
+
+            if (probationEndDate && probationEndDate <= startDate) {
+                this.errors.probation_end = 'Ngày kết thúc thử việc phải sau ngày bắt đầu';
+            }
+
+            // Validate salary fields
+            if (!this.form.salary_structure) {
+                this.errors.salary_structure = 'Vui lòng nhập cấu trúc lương';
+            } else if (specialCharsRegex.test(this.form.salary_structure)) {
+                this.errors.salary_structure = 'Cấu trúc lương không được chứa ký tự đặc biệt';
+            }
+
+            if (!this.form.salary_type) {
+                this.errors.salary_type = 'Vui lòng chọn loại lương';
+            }
+
+            if (!this.form.salary_amount || this.form.salary_amount <= 0) {
+                this.errors.salary_amount = 'Tiền lương phải lớn hơn 0';
+            }
 
             return Object.keys(this.errors).length === 0;
         },

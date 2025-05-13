@@ -5,36 +5,52 @@
             <router-link to="/departments/create" class="btn btn-primary">Thêm phòng ban mới</router-link>
         </div>
 
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Tên phòng ban</th>
-                        <th>Mô tả</th>
-                        <th>Số vị trí</th>
-                        <th>Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="department in departments" :key="department.id">
-                        <td>{{ department.id }}</td>
-                        <td>{{ department.name }}</td>
-                        <td>{{ department.description }}</td>
-                        <td>{{ department.positions ? department.positions.length : 0 }}</td>
-                        <td>
-                            <div class="action-buttons">
-                                <router-link :to="`/positions?department=${department.id}`" class="btn btn-sm btn-info">Xem</router-link>
-                                <router-link :to="`/departments/${department.id}/edit`" class="btn btn-sm btn-edit btn-primary">Sửa</router-link>
-                                <button @click="confirmDelete(department)" class="btn btn-sm btn-danger">Xóa</button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr v-if="departments.length === 0">
-                        <td colspan="5" class="text-center">Không có phòng ban nào</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="table-wrapper">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên phòng ban</th>
+                            <th>Mô tả</th>
+                            <th>Số vị trí</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="department in paginatedDepartments" :key="department.id">
+                            <td>{{ department.id }}</td>
+                            <td>{{ department.name }}</td>
+                            <td>{{ department.description }}</td>
+                            <td>{{ department.positions ? department.positions.length : 0 }}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <router-link :to="`/positions?department=${department.id}`"
+                                        class="btn btn-sm btn-info">Xem</router-link>
+                                    <router-link :to="`/departments/${department.id}/edit`"
+                                        class="btn btn-sm btn-edit btn-primary">Sửa</router-link>
+                                    <button @click="confirmDelete(department)"
+                                        class="btn btn-sm btn-danger">Xóa</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr v-if="departments.length === 0">
+                            <td colspan="5" class="text-center">Không có phòng ban nào</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Phân trang -->
+        <div class="pagination" v-if="departments.length > 0">
+            <button @click="prevPage" :disabled="currentPage === 1" class="btn btn-page">
+                Trang trước
+            </button>
+            <span>Trang {{ currentPage }} / {{ totalPages }}</span>
+            <button @click="nextPage" :disabled="currentPage === totalPages" class="btn btn-page">
+                Trang sau
+            </button>
         </div>
 
         <!-- Modal xác nhận xóa -->
@@ -47,7 +63,8 @@
                 <div class="modal-body">
                     <p>Bạn có chắc chắn muốn xóa phòng ban?</p>
                     <p class="warning" v-if="departmentToDelete?.positions && departmentToDelete.positions.length > 0">
-                        Cảnh báo: Phòng ban này có {{ departmentToDelete.positions.length }} vị trí. Xóa phòng ban sẽ xóa tất cả vị trí liên quan.
+                        Cảnh báo: Phòng ban này có {{ departmentToDelete.positions.length }} vị trí. Xóa phòng ban sẽ
+                        xóa tất cả vị trí liên quan.
                     </p>
                 </div>
                 <div class="modal-footer">
@@ -68,18 +85,40 @@ export default {
             departments: [],
             message: '',
             showDeleteModal: false,
-            departmentToDelete: null
+            departmentToDelete: null,
+            currentPage: 1,
+            itemsPerPage: 10
         };
+    },
+    computed: {
+        totalPages() {
+            return Math.ceil(this.departments.length / this.itemsPerPage);
+        },
+        paginatedDepartments() {
+            const start = (this.currentPage - 1) * this.itemsPerPage;
+            const end = start + this.itemsPerPage;
+            return this.departments.slice(start, end);
+        }
     },
     created() {
         this.loadDepartments();
-        
+
         // Kiểm tra nếu có message query param
         if (this.$route.query.message) {
             this.message = this.$route.query.message;
         }
     },
     methods: {
+        prevPage() {
+            if (this.currentPage > 1) {
+                this.currentPage--;
+            }
+        },
+        nextPage() {
+            if (this.currentPage < this.totalPages) {
+                this.currentPage++;
+            }
+        },
         async loadDepartments() {
             try {
                 const response = await axios.get('/api/departments');
@@ -95,7 +134,7 @@ export default {
         },
         async deleteDepartment() {
             if (!this.departmentToDelete) return;
-            
+
             try {
                 await axios.delete(`/api/departments/${this.departmentToDelete.id}`);
                 this.message = `Đã xóa phòng ban "${this.departmentToDelete.name}" thành công`;
@@ -118,6 +157,7 @@ export default {
 
 <style scoped>
 .container {
+    max-width: 83vw;
     padding: 20px;
 }
 
@@ -128,25 +168,44 @@ export default {
     margin-bottom: 20px;
 }
 
-.table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
+.table-wrapper {
+    position: relative;
+    margin-top: 20px;
+    overflow-x: auto;
+    white-space: nowrap;
 }
 
-.table th, .table td {
-    padding: 12px 15px;
+.table {
+    width: 100%;
+    min-width: 800px;
+    border-collapse: collapse;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     border: 1px solid #ddd;
+}
+
+.table th,
+.table td {
+    padding: 12px 15px;
     text-align: left;
+    border-bottom: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+
+.table th:last-child,
+.table td:last-child {
+    border-right: none;
 }
 
 .table th {
     background-color: #f8f9fa;
+    color: black;
     font-weight: bold;
+    border-bottom: 2px solid #dee2e6;
 }
 
-.table tbody tr:hover {
-    background-color: #f1f1f1;
+.table tr:hover {
+    background-color: #f5f5f5;
 }
 
 .action-buttons {
@@ -198,11 +257,12 @@ export default {
     background-color: #dc3545;
     color: white;
 }
+
 .btn-danger:hover {
     background-color: #c82333;
 }
 
-.btn-edit{
+.btn-edit {
     background-color: #ffc107;
     color: #333;
 }
@@ -284,14 +344,50 @@ export default {
         flex-direction: column;
         align-items: flex-start;
     }
-    
+
     .header-actions {
         margin-top: 10px;
         width: 100%;
     }
-    
+
     .modal-content {
         width: 90%;
     }
+}
+
+.table-responsive {
+    overflow-x: auto;
+    margin-bottom: 1rem;
+    -webkit-overflow-scrolling: touch;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    gap: 10px;
+}
+
+.btn-page {
+    background-color: #007bff;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-page:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+.btn-page:hover:not(:disabled) {
+    background-color: #0056b3;
+}
+
+.pagination span {
+    font-size: 14px;
 }
 </style>

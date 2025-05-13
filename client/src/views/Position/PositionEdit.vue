@@ -15,35 +15,20 @@
         <form v-else @submit.prevent="updatePosition" class="position-form">
             <div class="form-group">
                 <label for="name">Tên vị trí <span class="required">*</span></label>
-                <input 
-                    type="text" 
-                    id="name" 
-                    v-model="position.name" 
-                    class="form-control" 
-                    required
-                    placeholder="Nhập tên vị trí"
-                >
+                <input type="text" id="name" v-model="position.name" class="form-control" required
+                    placeholder="Nhập tên vị trí" @input="validateName">
+                <span v-if="errors.name" class="error">{{ errors.name }}</span>
             </div>
 
             <div class="form-group">
                 <label for="description">Mô tả</label>
-                <textarea 
-                    id="description" 
-                    v-model="position.description" 
-                    class="form-control" 
-                    rows="4"
-                    placeholder="Nhập mô tả vị trí"
-                ></textarea>
+                <textarea id="description" v-model="position.description" class="form-control" rows="4"
+                    placeholder="Nhập mô tả vị trí"></textarea>
             </div>
 
             <div class="form-group">
                 <label for="department_id">Phòng ban <span class="required">*</span></label>
-                <select 
-                    id="department_id" 
-                    v-model="position.department_id" 
-                    class="form-control" 
-                    required
-                >
+                <select id="department_id" v-model="position.department_id" class="form-control" required>
                     <option value="">-- Chọn phòng ban --</option>
                     <option v-for="dept in departments" :key="dept.id" :value="dept.id">{{ dept.name }}</option>
                 </select>
@@ -73,7 +58,10 @@ export default {
             departments: [],
             error: '',
             loading: true,
-            isSubmitting: false
+            isSubmitting: false,
+            errors: {
+                name: ''
+            }
         };
     },
     created() {
@@ -81,6 +69,23 @@ export default {
         this.loadPosition();
     },
     methods: {
+        validateName() {
+            const numberRegex = /[0-9]/;
+            const specialCharsRegex = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]+/;
+
+            if (numberRegex.test(this.position.name)) {
+                this.errors.name = 'Tên vị trí không được chứa số';
+                return false;
+            }
+
+            if (specialCharsRegex.test(this.position.name)) {
+                this.errors.name = 'Tên vị trí không được chứa ký tự đặc biệt';
+                return false;
+            }
+
+            this.errors.name = '';
+            return true;
+        },
         async loadDepartments() {
             try {
                 const response = await axios.get('/api/departments');
@@ -106,9 +111,13 @@ export default {
             }
         },
         async updatePosition() {
+            if (!this.validateName()) {
+                return;
+            }
+
             this.isSubmitting = true;
             this.error = '';
-            
+
             try {
                 const response = await axios.put(`/api/positions/${this.$route.params.id}`, this.position);
                 this.$router.push({
@@ -230,5 +239,12 @@ label {
 .loading {
     text-align: center;
     padding: 20px;
+}
+
+.error {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
 }
 </style>

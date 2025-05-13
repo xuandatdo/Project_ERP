@@ -30,7 +30,7 @@
                         <td>{{ "NV" + employee.id }}</td>
                         <td>
                             <img v-if="employee.profile_image"
-                                :src="'http://127.0.0.1:8000/storage/' + employee.profile_image" alt="Profile"
+                                :src="'https://www.erp.plt.pro.vn/storage/' + employee.profile_image" alt="Profile"
                                 class="profile-img">
                             <span v-else>Không có ảnh</span>
                         </td>

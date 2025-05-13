@@ -17,7 +17,7 @@
                         <div class="form-group">
                             <label for="weight">Trọng lượng (kg) <span class="required">*</span></label>
                             <input v-model.number="form.weight" id="weight" type="number" placeholder="Nhập trọng lượng"
-                                required min="0" />
+                                required min="0" step="0.01" @input="formatWeight" />
                             <span v-if="errors.weight" class="error">{{ errors.weight }}</span>
                         </div>
                         <div class="form-group">
@@ -128,24 +128,103 @@ export default {
         this.fetchTransportPlan();
     },
     methods: {
+        formatWeight(event) {
+            let value = event.target.value;
+            if (value && value.includes('.')) {
+                const parts = value.split('.');
+                if (parts[1].length > 2) {
+                    this.form.weight = Number(parts[0] + '.' + parts[1].slice(0, 2));
+                }
+            }
+        },
         validateForm() {
             this.errors = {};
+            const specialCharsRegex = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]+/;
 
-            if (!this.form.license_plate) this.errors.license_plate = 'Vui lòng nhập biển số xe';
-            if (!this.form.weight) this.errors.weight = 'Vui lòng nhập trọng lượng';
-            if (!this.form.expected_time) this.errors.expected_time = 'Vui lòng chọn thời gian dự kiến';
-            else if (new Date(this.form.expected_time) < new Date()) {
-                this.errors.expected_time = 'Thời gian dự kiến không thể là quá khứ';
+            // Validate license_plate
+            if (!this.form.license_plate) {
+                this.errors.license_plate = 'Vui lòng nhập biển số xe';
+            } else if (specialCharsRegex.test(this.form.license_plate)) {
+                this.errors.license_plate = 'Biển số xe không được chứa ký tự đặc biệt';
             }
-            if (!this.form.status) this.errors.status = 'Vui lòng chọn trạng thái';
-            if (!this.form.delivery_location) this.errors.delivery_location = 'Vui lòng nhập địa điểm giao hàng';
-            if (!this.form.pickup_location) this.errors.pickup_location = 'Vui lòng nhập địa điểm nhận hàng';
-            if (!this.form.driver_name) this.errors.driver_name = 'Vui lòng nhập tên tài xế';
-            if (!this.form.driver_phone) this.errors.driver_phone = 'Vui lòng nhập số điện thoại tài xế';
-            else if (!/^[0-9]{10}$/.test(this.form.driver_phone)) {
-                this.errors.driver_phone = 'Số điện thoại phải là 10 chữ số';
+
+            // Validate weight
+            if (!this.form.weight && this.form.weight !== 0) {
+                this.errors.weight = 'Vui lòng nhập trọng lượng';
+            } else if (this.form.weight <= 0) {
+                this.errors.weight = 'Trọng lượng phải lớn hơn 0';
+            } else if (isNaN(this.form.weight)) {
+                this.errors.weight = 'Trọng lượng phải là số';
+            } else {
+                // Format weight to 2 decimal places
+                this.form.weight = Number(this.form.weight.toFixed(2));
             }
-            if (!this.form.quantity) this.errors.quantity = 'Vui lòng nhập số lượng';
+
+            // Validate expected_time
+            if (!this.form.expected_time) {
+                this.errors.expected_time = 'Vui lòng chọn thời gian dự kiến';
+            } else {
+                const selectedDate = new Date(this.form.expected_time);
+                const now = new Date();
+
+                // Reset seconds and milliseconds for both dates for fair comparison
+                selectedDate.setSeconds(0, 0);
+                now.setSeconds(0, 0);
+
+                if (selectedDate < now) {
+                    this.errors.expected_time = 'Thời gian dự kiến không thể là quá khứ';
+                }
+            }
+
+            // Validate status
+            if (!this.form.status) {
+                this.errors.status = 'Vui lòng chọn trạng thái';
+            }
+
+            // Validate delivery_location
+            if (!this.form.delivery_location) {
+                this.errors.delivery_location = 'Vui lòng nhập địa điểm giao hàng';
+            } else if (specialCharsRegex.test(this.form.delivery_location)) {
+                this.errors.delivery_location = 'Địa điểm giao hàng không được chứa ký tự đặc biệt';
+            }
+
+            // Validate pickup_location
+            if (!this.form.pickup_location) {
+                this.errors.pickup_location = 'Vui lòng nhập địa điểm nhận hàng';
+            } else if (specialCharsRegex.test(this.form.pickup_location)) {
+                this.errors.pickup_location = 'Địa điểm nhận hàng không được chứa ký tự đặc biệt';
+            }
+
+            // Validate driver_name
+            if (!this.form.driver_name) {
+                this.errors.driver_name = 'Vui lòng nhập tên tài xế';
+            } else if (specialCharsRegex.test(this.form.driver_name)) {
+                this.errors.driver_name = 'Tên tài xế không được chứa ký tự đặc biệt';
+            }
+
+            // Validate driver_phone
+            if (!this.form.driver_phone) {
+                this.errors.driver_phone = 'Vui lòng nhập số điện thoại tài xế';
+            } else if (!/^[0-9]{10}$/.test(this.form.driver_phone)) {
+                this.errors.driver_phone = 'Số điện thoại phải có đúng 10 chữ số';
+            }
+
+            // Validate quantity
+            if (!this.form.quantity) {
+                this.errors.quantity = 'Vui lòng nhập số lượng';
+            } else if (!Number.isInteger(this.form.quantity) || this.form.quantity <= 0) {
+                this.errors.quantity = 'Số lượng phải là số nguyên dương';
+            }
+
+            // Validate cargo_details
+            if (this.form.cargo_details && specialCharsRegex.test(this.form.cargo_details)) {
+                this.errors.cargo_details = 'Thông tin hàng hóa không được chứa ký tự đặc biệt';
+            }
+
+            // Validate notes
+            if (this.form.notes && specialCharsRegex.test(this.form.notes)) {
+                this.errors.notes = 'Ghi chú không được chứa ký tự đặc biệt';
+            }
 
             return Object.keys(this.errors).length === 0;
         },
@@ -160,11 +239,20 @@ export default {
         async fetchTransportPlan() {
             try {
                 const response = await axios.get(`/api/transport-plans/${this.$route.params.id}`);
-                // Format expected_time for datetime-local input
                 const data = response.data;
+
+                // Format expected_time for datetime-local input
                 if (data.expected_time) {
-                    data.expected_time = new Date(data.expected_time).toISOString().slice(0, 16);
+                    const date = new Date(data.expected_time);
+                    // Format to YYYY-MM-DDThh:mm
+                    data.expected_time = date.toISOString().slice(0, 16);
                 }
+
+                // Ensure weight is properly formatted
+                if (data.weight) {
+                    data.weight = Number(data.weight);
+                }
+
                 this.form = data;
             } catch (error) {
                 console.error('Lỗi khi lấy thông tin kế hoạch vận chuyển:', error);
@@ -176,11 +264,15 @@ export default {
             if (!this.validateForm()) return;
 
             try {
-                // Format expected_time to ISO string for API consistency
+                // Format expected_time to ISO string with timezone handling
                 const formattedForm = {
                     ...this.form,
                     expected_time: new Date(this.form.expected_time).toISOString()
                 };
+
+                // Ensure the form data is properly formatted
+                formattedForm.weight = Number(formattedForm.weight.toFixed(2));
+
                 const response = await axios.put(`/api/transport-plans/${this.$route.params.id}`, formattedForm);
                 this.showMessage('Cập nhật kế hoạch vận chuyển thành công!');
                 setTimeout(() => {
